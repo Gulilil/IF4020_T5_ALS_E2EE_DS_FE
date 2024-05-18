@@ -13,18 +13,18 @@ function App() {
     const key = ec.genKeyPair();
     const clientPublicKey = key.getPublic();
 
-    newSocket.on("connect", () => {
-      console.log("Connected to server");
+    newSocket.on('connect', () => {
+      console.log('Connected to server')
 
-      newSocket.emit("clientPublicKey", clientPublicKey.encode("hex", false));
-    });
-    newSocket.on("publicKey", (serverPublicKey) => {
-      console.log("Receive server public key");
+      newSocket.emit('clientPublicKey', clientPublicKey.encode('hex', false))
+    })
+    newSocket.on('publicKey', (serverPublicKey) => {
+      console.log('Receive server public key')
       const sharedSecret = key.derive(
-        ec.keyFromPublic(serverPublicKey, "hex").getPublic()
-      );
-      console.log("Shared secret:", sharedSecret);
-    });
+        ec.keyFromPublic(serverPublicKey, 'hex').getPublic(),
+      )
+      console.log('Shared secret:', sharedSecret)
+    })
     // return () => newSocket.close();
   }, []);
   const hanldeSubmit = () => {
@@ -42,7 +42,7 @@ function App() {
       />
       <button onClick={hanldeSubmit}>Send</button>
     </>
-  );
+  )
 }
 
-export default App;
+export default App
