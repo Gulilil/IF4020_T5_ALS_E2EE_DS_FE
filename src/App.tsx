@@ -1,32 +1,32 @@
-import { useEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
-import { io } from "socket.io-client";
-import { ec as EC } from "elliptic";
+import { useEffect, useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
+import { io } from 'socket.io-client'
+import { ec as EC } from 'elliptic'
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(0)
   useEffect(() => {
-    const newSocket = io("http://localhost:8000");
-    const ec = new EC("secp256k1");
-    const key = ec.genKeyPair();
-    const clientPublicKey = key.getPublic();
+    const newSocket = io('http://localhost:8000')
+    const ec = new EC('secp256k1')
+    const key = ec.genKeyPair()
+    const clientPublicKey = key.getPublic()
 
-    newSocket.on("connect", () => {
-      console.log("Connected to server");
+    newSocket.on('connect', () => {
+      console.log('Connected to server')
 
-      newSocket.emit("clientPublicKey", clientPublicKey.encode("hex", false));
-    });
-    newSocket.on("publicKey", (serverPublicKey) => {
-      console.log("Receive server public key");
+      newSocket.emit('clientPublicKey', clientPublicKey.encode('hex', false))
+    })
+    newSocket.on('publicKey', (serverPublicKey) => {
+      console.log('Receive server public key')
       const sharedSecret = key.derive(
-        ec.keyFromPublic(serverPublicKey, "hex").getPublic()
-      );
-      console.log("Shared secret:", sharedSecret);
-    });
+        ec.keyFromPublic(serverPublicKey, 'hex').getPublic(),
+      )
+      console.log('Shared secret:', sharedSecret)
+    })
     // return () => newSocket.close();
-  }, []);
+  }, [])
   return (
     <>
       <div>
@@ -50,7 +50,7 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
     </>
-  );
+  )
 }
 
-export default App;
+export default App
