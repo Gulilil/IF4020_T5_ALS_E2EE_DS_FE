@@ -1,5 +1,5 @@
 import { ec as EC } from 'elliptic'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import Home from './components/pages/Home'
 import HomeChat from './components/pages/HomeChat'
@@ -10,11 +10,10 @@ import apiClient from './api/apiClient'
 
 const AppRoutes: React.FC = () => {
   const [, setCookie] = useCookies(['sharedKey'])
-  const [isKeyGenerated, setIsKeyGenerated] = useState<boolean>(false)
+  const isKeyGeneratedRef = useRef<boolean>(false)
 
   useEffect(() => {
     const generateKey = async () => {
-      setIsKeyGenerated(true)
       const ec = new EC('secp256k1')
       let clientPrivateKey
       let clientPublicKey
@@ -44,6 +43,7 @@ const AppRoutes: React.FC = () => {
         const response = await apiClient.post('/', {
           key: clientPublicKey.encode('hex', false),
         })
+
         if (response.status === 200) {
           const publicServerKey = response.data
           const serverKey = ec.keyFromPublic(publicServerKey, 'hex')
@@ -63,10 +63,11 @@ const AppRoutes: React.FC = () => {
       }
     }
 
-    if (!isKeyGenerated) {
+    if (!isKeyGeneratedRef.current) {
+      isKeyGeneratedRef.current = true
       generateKey()
     }
-  }, [isKeyGenerated, setCookie])
+  }, [setCookie])
 
   return (
     <Router>
