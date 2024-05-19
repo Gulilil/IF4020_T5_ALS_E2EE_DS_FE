@@ -3,14 +3,10 @@ import {
   List,
   ListItem,
   ListItemText,
-  AppBar,
-  Toolbar,
-  Typography,
   Button,
   Box,
   Divider,
 } from '@mui/material'
-import ChatIcon from '@mui/icons-material/Chat'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import { useChat } from '../context/ChatContext'
 
@@ -24,15 +20,7 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className="w-60 h-full bg-gray-900 text-white flex flex-col">
-      <AppBar position="static" className="bg-gray-800">
-        <Toolbar>
-          <ChatIcon />
-          <Typography variant="h6" className="ml-2">
-            Messages
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Box className="flex-1 overflow-y-auto">
+      <Box className="flex-1 overflow-y-auto bg-custom-chatroom-sidebar">
         <List>
           {chatrooms.map((chatroom) => (
             <ListItem
@@ -47,11 +35,17 @@ const Sidebar: React.FC = () => {
           ))}
         </List>
       </Box>
-      <Divider />
-      <Box className="p-4">
+      <Divider className="bg-custom-chatroom-sidebar" />
+      <Box className="p-4 bg-custom-chatroom-sidebar">
         <Button
           variant="contained"
-          color="secondary"
+          sx={{
+            backgroundColor: '#222222',
+            color: '#ffffff',
+            '&:hover': {
+              backgroundColor: '#333333',
+            },
+          }}
           fullWidth
           startIcon={<ExitToAppIcon />}
           onClick={handleLogout}

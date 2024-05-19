@@ -31,23 +31,49 @@ const Chatroom: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col w-full">
-      <AppBar position="static" className="bg-blue-600">
+      <AppBar position="static" sx={{ backgroundColor: '#1A1A1A' }}>
         <Toolbar>
           <Typography variant="h6" className="text-white flex-1">
             {`Chatroom ${selectedChatroom}`}
           </Typography>
         </Toolbar>
       </AppBar>
-      <Box className="flex-1 p-4 overflow-y-auto">
+      <Box className="flex-1 p-4 overflow-y-auto bg-custom-chatroom">
         {messages[selectedChatroom]?.map((msg, index) => (
           <div key={index} className="mb-2">
-            <div className="bg-white p-2 rounded shadow">{msg}</div>
+            <div className="p-2 rounded text-{BDBDBD} w-fit break-words">
+              {msg}
+            </div>
           </div>
         ))}
       </Box>
-      <footer className="p-4 bg-white shadow flex">
+      <footer className="p-4 bg-custom-chatroom shadow flex justify-center">
         <TextField
           variant="outlined"
+          sx={{
+            backgroundColor: '#262626',
+            maxWidth: '600px',
+            width: '100%',
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: '#4a4a4a',
+              },
+              '&:hover fieldset': {
+                borderColor: '#888888',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#CCCCCC',
+              },
+              '& input': {
+                color: '#CCCCCC',
+              },
+            },
+          }}
+          InputProps={{
+            style: {
+              color: '#ffffff',
+            },
+          }}
           fullWidth
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -58,7 +84,7 @@ const Chatroom: React.FC = () => {
             }
           }}
         />
-        <IconButton color="primary" onClick={handleSendMessage}>
+        <IconButton sx={{ color: '#CCCCCC' }} onClick={handleSendMessage}>
           <SendIcon />
         </IconButton>
       </footer>
