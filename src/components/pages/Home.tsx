@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import useAuth from '../../hooks/useAuth';
 
-const Login: React.FC = () => {
+const Home: React.FC = () => {
   const { handleLogin, error } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -36,4 +36,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Home;
