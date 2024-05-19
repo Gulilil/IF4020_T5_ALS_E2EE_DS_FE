@@ -43,13 +43,14 @@ const Chatroom: React.FC = () => {
         {messages[selectedChatroom]?.map((msg, index) => (
           <div
             key={index}
-            className={`mb-2 flex ${msg.user === currentUser ? 'justify-start' : 'justify-end'}`}
+            className={`mb-2 flex ${msg.senderId === currentUser ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className="p-2 rounded text-{BDBDBD} w-fit break-words"
+              className={`p-2 rounded text-{BDBDBD} w-fit break-words`}
               style={{ maxWidth: '70%' }}
             >
-              {msg.text}
+              <div className="font-bold">{msg.senderId}</div>
+              <div>{msg.hashedMessage}</div>
             </div>
           </div>
         ))}

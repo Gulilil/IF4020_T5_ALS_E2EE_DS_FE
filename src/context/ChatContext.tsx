@@ -8,9 +8,13 @@ import React, {
 import { SendMessagePayload, JoinRoomPayload } from '../dto/socket'
 import socket from '../api/socket'
 
-interface Message {
-  text: string
-  user: string
+export interface Message {
+  id: string
+  senderId: string
+  receiverId: string
+  createdAt: string
+  hashedMessage: string
+  roomChatId: number
 }
 
 interface ChatContextType {
@@ -41,19 +45,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     { id: 3, name: 'Support' },
   ]
 
-  const messageData: { [key: number]: Message[] } = {
-    1: [
-      { text: 'Hello in General!', user: 'user1' },
-      { text: 'How are you?', user: 'user2' },
-    ],
-    2: [{ text: 'Random chat starts here.', user: 'user1' }],
-    3: [{ text: 'Need help with something?', user: 'user2' }],
-  }
-
   const [selectedChatroom, setSelectedChatroom] = useState<number | null>(null)
-  const [messages, setMessages] = useState<{ [key: number]: Message[] }>(
-    messageData,
-  )
+  const [messages, setMessages] = useState<{ [key: number]: Message[] }>({})
   const [receiverId, setReceiverId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -61,17 +54,22 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       const payload: JoinRoomPayload = { roomId: selectedChatroom.toString() }
       socket.emit('joinRoom', payload)
 
-      socket.on('roomMessages', (roomMessages) => {
+      socket.on('receiveMessage', (message: Message) => {
+        console.log('Message received:', message)
         setMessages((prevMessages) => ({
           ...prevMessages,
-          [selectedChatroom]: roomMessages,
+          [message.roomChatId]: [
+            ...(prevMessages[message.roomChatId] || []),
+            message,
+          ],
         }))
       })
 
-      socket.on('receiveMessage', (message) => {
+      socket.on('roomMessages', (roomMessages: Message[]) => {
+        console.log('Room messages received:', roomMessages)
         setMessages((prevMessages) => ({
           ...prevMessages,
-          [selectedChatroom]: [...prevMessages[selectedChatroom], message],
+          [selectedChatroom]: roomMessages,
         }))
       })
 
@@ -111,7 +109,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     socket.on('error', (message: string) => {
       console.error(message)
-      // Handle error message appropriately
     })
   }
 
