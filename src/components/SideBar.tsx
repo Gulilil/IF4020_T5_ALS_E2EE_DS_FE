@@ -23,7 +23,7 @@ const Sidebar: React.FC = () => {
   }
 
   return (
-    <div className="w-auto max-w-xs h-full bg-gray-900 text-white flex flex-col">
+    <div className="w-60 h-full bg-gray-900 text-white flex flex-col">
       <AppBar position="static" className="bg-gray-800">
         <Toolbar>
           <ChatIcon />

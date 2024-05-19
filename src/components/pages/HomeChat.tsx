@@ -6,11 +6,9 @@ import Chatroom from '../Chatroom'
 const HomeChat: React.FC = () => {
   return (
     <ChatProvider>
-      <div className="flex h-screen">
+      <div className="flex h-screen w-screen">
         <Sidebar />
-        <div className="flex-1 flex flex-col">
-          <Chatroom />
-        </div>
+        <Chatroom />
       </div>
     </ChatProvider>
   )
