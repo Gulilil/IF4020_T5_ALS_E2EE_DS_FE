@@ -11,6 +11,7 @@ const useAuth = () => {
       const user = await login(username, password);
       setUser(user);
       setError(null);
+      localStorage.setItem('username', username);
     } catch (err) {
       setError('Invalid username or password');
     }

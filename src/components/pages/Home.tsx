@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
+import { ROUTES } from '../../constants/routes';
 
 const Home: React.FC = () => {
   const { handleLogin } = useAuth();
@@ -11,15 +12,14 @@ const Home: React.FC = () => {
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
     if (storedUsername) {
-      navigate('/home-chat');
+      navigate(ROUTES.CHATS);
     }
   }, [navigate]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleLogin(username, password);
-    localStorage.setItem('username', username);
-    navigate('/home-chat');
+    navigate(ROUTES.CHATS);
   };
 
   return (
