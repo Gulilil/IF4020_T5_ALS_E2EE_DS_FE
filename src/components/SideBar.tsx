@@ -9,16 +9,16 @@ import {
 } from '@mui/material'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import { useChat } from '../context/ChatContext'
-import { useNavigate } from 'react-router-dom'
-import { ROUTES } from '../constants/routes'
+import useAuth from '../hooks/useAuth'
 
 const Sidebar: React.FC = () => {
-  const { chatrooms, selectedChatroom, setSelectedChatroom } = useChat()
-  const navigate = useNavigate()
+  const { handleLogout } = useAuth()
+  const { chatrooms, selectedChatroom, setSelectedChatroom, joinQueue } =
+    useChat()
+  const currentUser = localStorage.getItem('id') || 'user1'
 
-  const handleLogout = () => {
-    localStorage.removeItem('username')
-    navigate(ROUTES.HOME)
+  const handleJoinQueue = () => {
+    joinQueue(currentUser)
   }
 
   return (
@@ -54,6 +54,21 @@ const Sidebar: React.FC = () => {
           onClick={handleLogout}
         >
           Logout
+        </Button>
+        <Button
+          variant="contained"
+          sx={{
+            backgroundColor: '#444444',
+            color: '#ffffff',
+            '&:hover': {
+              backgroundColor: '#555555',
+            },
+            marginTop: '10px',
+          }}
+          fullWidth
+          onClick={handleJoinQueue}
+        >
+          Join Queue
         </Button>
       </Box>
     </div>

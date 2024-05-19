@@ -11,13 +11,13 @@ import SendIcon from '@mui/icons-material/Send'
 import { useChat } from '../context/ChatContext'
 
 const Chatroom: React.FC = () => {
-  const { selectedChatroom, messages, addMessage } = useChat()
+  const { selectedChatroom, messages, addMessage, receiverId } = useChat()
   const [message, setMessage] = useState<string>('')
-  const currentUser = localStorage.getItem('id') || ''
+  const currentUser = localStorage.getItem('id') || 'user1'
 
   const handleSendMessage = () => {
-    if (message.trim() && selectedChatroom !== null) {
-      addMessage(selectedChatroom, message, currentUser)
+    if (message.trim() && selectedChatroom !== null && receiverId) {
+      addMessage(selectedChatroom, message, currentUser, receiverId)
       setMessage('')
     }
   }
@@ -46,7 +46,7 @@ const Chatroom: React.FC = () => {
             className={`mb-2 flex ${msg.user === currentUser ? 'justify-start' : 'justify-end'}`}
           >
             <div
-              className={`p-2 rounded text-{BDBDBD} w-fit break-words`}
+              className="p-2 rounded text-{BDBDBD} w-fit break-words"
               style={{ maxWidth: '70%' }}
             >
               {msg.text}

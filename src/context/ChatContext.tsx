@@ -17,8 +17,15 @@ interface ChatContextType {
   chatrooms: { id: number; name: string }[]
   messages: { [key: number]: Message[] }
   selectedChatroom: number | null
+  receiverId: string | null
   setSelectedChatroom: (id: number | null) => void
-  addMessage: (chatroomId: number, message: string, user: string) => void
+  addMessage: (
+    chatroomId: number,
+    message: string,
+    user: string,
+    receiverId: string,
+  ) => void
+  joinQueue: (userId: string) => void
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
@@ -47,6 +54,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [messages, setMessages] = useState<{ [key: number]: Message[] }>(
     messageData,
   )
+  const [receiverId, setReceiverId] = useState<string | null>(null)
 
   useEffect(() => {
     if (selectedChatroom !== null) {
@@ -74,14 +82,37 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     }
   }, [selectedChatroom])
 
-  const addMessage = (chatroomId: number, message: string, user: string) => {
+  const addMessage = (
+    chatroomId: number,
+    message: string,
+    user: string,
+    receiverId: string,
+  ) => {
     const payload: SendMessagePayload = {
       roomId: chatroomId.toString(),
       senderId: user,
-      receiverId: '',
+      receiverId,
       message,
     }
     socket.emit('sendMessage', payload)
+  }
+
+  const joinQueue = (userId: string) => {
+    socket.emit('joinQueue', { userId })
+
+    socket.on(
+      'matched',
+      ({ roomId, receiverId }: { roomId: string; receiverId: string }) => {
+        setSelectedChatroom(Number(roomId))
+        setReceiverId(receiverId)
+        console.log(`Matched to room: ${roomId}`)
+      },
+    )
+
+    socket.on('error', (message: string) => {
+      console.error(message)
+      // Handle error message appropriately
+    })
   }
 
   return (
@@ -90,8 +121,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         chatrooms: chatroomData,
         messages,
         selectedChatroom,
+        receiverId,
         setSelectedChatroom,
         addMessage,
+        joinQueue,
       }}
     >
       {children}
