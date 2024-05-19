@@ -8,6 +8,9 @@ export default defineConfig(({ mode }) => {
     define: {
       'process.env': env
     },
+    css: {
+      postcss: './postcss.config.js',
+    },
     plugins: [react()],
   }
 })

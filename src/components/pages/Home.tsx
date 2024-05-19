@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import useAuth from '../../hooks/useAuth';
 
 const Home: React.FC = () => {
-  const { handleLogin, error } = useAuth();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const { handleLogin } = useAuth();
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -12,27 +12,52 @@ const Home: React.FC = () => {
   };
 
   return (
-    <form onSubmit={onSubmit}>
-      <h2>Login</h2>
-      <div>
-        <label>Username</label>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
+    <div className="flex justify-center items-center w-screen h-screen bg-gray-100">
+      <div className="flex flex-col text-gray-700 bg-white shadow-md rounded-xl p-8 w-80 sm:w-96">
+        <h4 className="font-sans text-2xl font-semibold text-center text-blue-gray-900">
+          Sign In
+        </h4>
+        <p className="mt-1 text-base text-center text-gray-700">
+          Enter your details to login.
+        </p>
+        <form className="mt-8" onSubmit={onSubmit}>
+          <div className="flex flex-col gap-4 mb-6">
+            <div className="flex flex-col">
+              <label htmlFor="username" className="mb-2 font-sans text-base font-semibold text-blue-gray-900">
+                Username
+              </label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="username"
+                className="rounded-md border border-gray-300 bg-gray-100 px-3 py-2 focus:border-gray-900 focus:bg-white focus:outline-none"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="password" className="mb-2 font-sans text-base font-semibold text-blue-gray-900">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="********"
+                className="rounded-md border border-gray-300 bg-gray-100 px-3 py-2 focus:border-gray-900 focus:bg-white focus:outline-none"
+              />
+            </div>
+          </div>
+          <button
+            className="w-full rounded-lg bg-gray-900 py-3 text-xs font-bold uppercase text-white shadow-md transition-all hover:bg-gray-800 focus:opacity-85 focus:shadow-none active:opacity-85"
+            type="submit"
+          >
+            Sign In
+          </button>
+        </form>
       </div>
-      <div>
-        <label>Password</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      <button type="submit">Login</button>
-      {error && <p>{error}</p>}
-    </form>
+    </div>
   );
 };
 
