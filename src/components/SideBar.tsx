@@ -13,12 +13,15 @@ import useAuth from '../hooks/useAuth'
 
 const Sidebar: React.FC = () => {
   const { handleLogout } = useAuth()
-  const { chatrooms, selectedChatroom, setSelectedChatroom, joinQueue } =
-    useChat()
+  const { chatrooms, selectedChatroom, setSelectedChatroom, joinQueue, joinRealTimeQueue } = useChat()
   const currentUser = localStorage.getItem('id') || 'user1'
 
-  const handleJoinQueue = () => {
-    joinQueue(currentUser)
+  const handleJoinQueue = (chatroomId: number) => {
+    joinQueue(currentUser, chatroomId)
+  }
+
+  const handleJoinRealTimeQueue = () => {
+    joinRealTimeQueue(currentUser)
   }
 
   return (
@@ -29,7 +32,10 @@ const Sidebar: React.FC = () => {
             <ListItem
               button
               key={chatroom.id}
-              onClick={() => setSelectedChatroom(chatroom.id)}
+              onClick={() => {
+                setSelectedChatroom(chatroom.id)
+                handleJoinQueue(chatroom.id)
+              }}
               selected={chatroom.id === selectedChatroom}
               className={`hover:bg-gray-700 ${chatroom.id === selectedChatroom ? 'bg-gray-800' : ''}`}
             >
@@ -58,17 +64,17 @@ const Sidebar: React.FC = () => {
         <Button
           variant="contained"
           sx={{
-            backgroundColor: '#444444',
+            backgroundColor: '#666666',
             color: '#ffffff',
             '&:hover': {
-              backgroundColor: '#555555',
+              backgroundColor: '#777777',
             },
             marginTop: '10px',
           }}
           fullWidth
-          onClick={handleJoinQueue}
+          onClick={handleJoinRealTimeQueue}
         >
-          Join Queue
+          Join Real-Time Queue
         </Button>
       </Box>
     </div>

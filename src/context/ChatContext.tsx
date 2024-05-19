@@ -29,7 +29,16 @@ interface ChatContextType {
     user: string,
     receiverId: string,
   ) => void
-  joinQueue: (userId: string) => void
+  addRealTimeMessage: (
+    chatroomId: number,
+    message: string,
+    user: string,
+    receiverId: string,
+  ) => void
+  isRealTimeChat: boolean
+  joinQueue: (userId: string, chatroomId: number) => void
+  joinRealTimeQueue: (userId: string) => void
+  fetchMessages: (chatroomId: number) => void
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
@@ -48,6 +57,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [selectedChatroom, setSelectedChatroom] = useState<number | null>(null)
   const [messages, setMessages] = useState<{ [key: number]: Message[] }>({})
   const [receiverId, setReceiverId] = useState<string | null>(null)
+  const [isRealTimeChat, setIsRealTimeChat] = useState<boolean>(false)
 
   useEffect(() => {
     if (selectedChatroom !== null) {
@@ -95,8 +105,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     socket.emit('sendMessage', payload)
   }
 
-  const joinQueue = (userId: string) => {
-    socket.emit('joinQueue', { userId })
+  const joinQueue = (userId: string, chatroomId: number) => {
+    setIsRealTimeChat(false)
+    socket.emit('joinQueue', { userId, chatroomId })
 
     socket.on(
       'matched',
@@ -112,6 +123,43 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     })
   }
 
+  const fetchMessages = (chatroomId: number) => {
+    socket.emit('fetchMessages', { roomId: chatroomId.toString() })
+  }
+
+  const joinRealTimeQueue = (userId: string) => {
+    setIsRealTimeChat(true)
+    socket.emit('joinRealTimeQueue', { userId })
+
+    socket.on(
+      'matchedRealTime',
+      ({ roomId, receiverId }: { roomId: string; receiverId: string }) => {
+        setSelectedChatroom(Number(roomId))
+        setReceiverId(receiverId)
+        console.log(`Matched to real-time room: ${roomId}`)
+      },
+    )
+
+    socket.on('error', (message: string) => {
+      console.error(message)
+    })
+  }
+
+  const addRealTimeMessage = (
+    chatroomId: number,
+    message: string,
+    user: string,
+    receiverId: string,
+  ) => {
+    const payload: SendMessagePayload = {
+      roomId: chatroomId.toString(),
+      senderId: user,
+      receiverId,
+      message,
+    }
+    socket.emit('sendRealTimeMessage', payload)
+  }
+
   return (
     <ChatContext.Provider
       value={{
@@ -121,7 +169,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         receiverId,
         setSelectedChatroom,
         addMessage,
+        addRealTimeMessage,
         joinQueue,
+        joinRealTimeQueue,
+        fetchMessages,
+        isRealTimeChat,
       }}
     >
       {children}
