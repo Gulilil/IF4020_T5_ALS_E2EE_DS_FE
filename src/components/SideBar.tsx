@@ -21,6 +21,7 @@ const Sidebar: React.FC = () => {
   }
 
   const handleJoinRealTimeQueue = () => {
+    setSelectedChatroom(-1)
     joinRealTimeQueue(currentUser)
   }
 
