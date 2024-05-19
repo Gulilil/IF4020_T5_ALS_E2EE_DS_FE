@@ -13,10 +13,11 @@ import { useChat } from '../context/ChatContext'
 const Chatroom: React.FC = () => {
   const { selectedChatroom, messages, addMessage } = useChat()
   const [message, setMessage] = useState<string>('')
+  const currentUser = 'user1'
 
   const handleSendMessage = () => {
     if (message.trim() && selectedChatroom !== null) {
-      addMessage(selectedChatroom, message)
+      addMessage(selectedChatroom, message, currentUser)
       setMessage('')
     }
   }
@@ -38,11 +39,18 @@ const Chatroom: React.FC = () => {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Box className="flex-1 p-4 overflow-y-auto bg-custom-chatroom">
+      <Box className="flex-1 p-4 overflow-y-auto bg-custom-chatroom px-20">
         {messages[selectedChatroom]?.map((msg, index) => (
-          <div key={index} className="mb-2">
-            <div className="p-2 rounded text-{BDBDBD} w-fit break-words">
-              {msg}
+          <div
+            key={index}
+            className={`mb-2 flex ${msg.user === currentUser ? 'justify-start' : 'justify-end'}`}
+          >
+            <div
+              className={`p-2 rounded text-{BDBDBD} w-fit break-words'
+              }`}
+              style={{ maxWidth: '70%' }}
+            >
+              {msg.text}
             </div>
           </div>
         ))}
@@ -52,29 +60,25 @@ const Chatroom: React.FC = () => {
           variant="outlined"
           sx={{
             backgroundColor: '#262626',
+            borderRadius: '16px',
             maxWidth: '600px',
             width: '100%',
             '& .MuiOutlinedInput-root': {
               '& fieldset': {
                 borderColor: '#4a4a4a',
+                borderRadius: '16px',
               },
               '&:hover fieldset': {
                 borderColor: '#888888',
               },
               '&.Mui-focused fieldset': {
-                borderColor: '#CCCCCC',
+                borderColor: '#ffffff',
               },
               '& input': {
-                color: '#CCCCCC',
+                color: '#ffffff',
               },
             },
           }}
-          InputProps={{
-            style: {
-              color: '#ffffff',
-            },
-          }}
-          fullWidth
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Type a message..."
@@ -82,6 +86,11 @@ const Chatroom: React.FC = () => {
             if (e.key === 'Enter') {
               handleSendMessage()
             }
+          }}
+          InputProps={{
+            style: {
+              color: '#ffffff',
+            },
           }}
         />
         <IconButton sx={{ color: '#CCCCCC' }} onClick={handleSendMessage}>

@@ -1,11 +1,16 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react'
 
+interface Message {
+  text: string
+  user: string
+}
+
 interface ChatContextType {
   chatrooms: { id: number; name: string }[]
-  messages: { [key: number]: string[] }
+  messages: { [key: number]: Message[] }
   selectedChatroom: number | null
   setSelectedChatroom: (id: number | null) => void
-  addMessage: (chatroomId: number, message: string) => void
+  addMessage: (chatroomId: number, message: string, user: string) => void
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
@@ -21,21 +26,24 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     { id: 3, name: 'Support' },
   ]
 
-  const messageData = {
-    1: ['Hello in General!', 'How are you?'],
-    2: ['Random chat starts here.'],
-    3: ['Need help with something?'],
+  const messageData: { [key: number]: Message[] } = {
+    1: [
+      { text: 'Hello in General!', user: 'user1' },
+      { text: 'How are you?', user: 'user2' },
+    ],
+    2: [{ text: 'Random chat starts here.', user: 'user1' }],
+    3: [{ text: 'Need help with something?', user: 'user2' }],
   }
 
   const [selectedChatroom, setSelectedChatroom] = useState<number | null>(null)
-  const [messages, setMessages] = useState<{ [key: number]: string[] }>(
+  const [messages, setMessages] = useState<{ [key: number]: Message[] }>(
     messageData,
   )
 
-  const addMessage = (chatroomId: number, message: string) => {
+  const addMessage = (chatroomId: number, message: string, user: string) => {
     setMessages((prevMessages) => ({
       ...prevMessages,
-      [chatroomId]: [...prevMessages[chatroomId], message],
+      [chatroomId]: [...prevMessages[chatroomId], { text: message, user }],
     }))
   }
 
