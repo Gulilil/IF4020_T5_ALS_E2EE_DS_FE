@@ -14,7 +14,7 @@ const TestingSocket: React.FC = () => {
       const key = ec.genKeyPair()
       const clientPublicKey = key.getPublic()
       try {
-        const response = await apiClient.post('/api', {
+        const response = await apiClient.post('/', {
           key: clientPublicKey.encode('hex', false),
         })
         if (response.status === 200) {
