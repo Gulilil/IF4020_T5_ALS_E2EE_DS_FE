@@ -1,27 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import useAuth from '../../hooks/useAuth';
-import { ROUTES } from '../../constants/routes';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import useAuth from '../../hooks/useAuth'
+import { ROUTES } from '../../constants/routes'
 
 const Home: React.FC = () => {
-  const { handleLogin } = useAuth();
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const navigate = useNavigate();
+  const { handleLogin } = useAuth()
+  const [username, setUsername] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const navigate = useNavigate()
 
   useEffect(() => {
-    const storedUsername = localStorage.getItem('username');
+    const storedUsername = localStorage.getItem('username')
     if (storedUsername) {
-      console.log(storedUsername);
-      navigate(ROUTES.CHATS);
+      console.log(storedUsername)
+      navigate(ROUTES.CHATS)
     }
-  }, [navigate]);
+  }, [navigate])
 
   const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleLogin(username, password);
-    navigate(ROUTES.CHATS);
-  };
+    e.preventDefault()
+    handleLogin(username, password)
+    navigate(ROUTES.CHATS)
+  }
 
   return (
     <div className="flex justify-center items-center w-screen h-screen bg-gray-100">
@@ -35,7 +35,10 @@ const Home: React.FC = () => {
         <form className="mt-8" onSubmit={onSubmit}>
           <div className="flex flex-col gap-4 mb-6">
             <div className="flex flex-col">
-              <label htmlFor="username" className="mb-2 font-sans text-base font-semibold text-blue-gray-900">
+              <label
+                htmlFor="username"
+                className="mb-2 font-sans text-base font-semibold text-blue-gray-900"
+              >
                 Username
               </label>
               <input
@@ -48,7 +51,10 @@ const Home: React.FC = () => {
               />
             </div>
             <div className="flex flex-col">
-              <label htmlFor="password" className="mb-2 font-sans text-base font-semibold text-blue-gray-900">
+              <label
+                htmlFor="password"
+                className="mb-2 font-sans text-base font-semibold text-blue-gray-900"
+              >
                 Password
               </label>
               <input
@@ -70,7 +76,7 @@ const Home: React.FC = () => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home

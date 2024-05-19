@@ -1,16 +1,16 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../constants/routes';
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ROUTES } from '../constants/routes'
 
 const useAuthRedirect = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   useEffect(() => {
-    const username = localStorage.getItem('username');
+    const username = localStorage.getItem('username')
     if (!username) {
-      navigate(ROUTES.HOME);
+      navigate(ROUTES.HOME)
     }
-  }, [navigate]);
-};
+  }, [navigate])
+}
 
-export default useAuthRedirect;
+export default useAuthRedirect
