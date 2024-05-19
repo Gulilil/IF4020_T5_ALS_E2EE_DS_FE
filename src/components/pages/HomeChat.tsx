@@ -5,7 +5,7 @@ import Chatroom from '../Chatroom'
 import useAuthRedirect from '../../hooks/useAuthRedirect'
 
 const HomeChat: React.FC = () => {
-  useAuthRedirect() 
+  useAuthRedirect()
   return (
     <ChatProvider>
       <div className="flex h-screen w-screen">
