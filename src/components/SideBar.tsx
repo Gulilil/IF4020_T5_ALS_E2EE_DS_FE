@@ -12,13 +12,10 @@ import {
 } from '@mui/material'
 import ChatIcon from '@mui/icons-material/Chat'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
-import { useChatrooms } from '../../hooks/useChatrooms'
+import { useChat } from '../context/ChatContext'
 
-const Sidebar: React.FC<{
-  onSelectChatroom: (id: number) => void
-  selectedChatroom: number | null
-}> = ({ onSelectChatroom, selectedChatroom }) => {
-  const { chatrooms } = useChatrooms()
+const Sidebar: React.FC = () => {
+  const { chatrooms, selectedChatroom, setSelectedChatroom } = useChat()
 
   const handleLogout = () => {
     localStorage.removeItem('username')
@@ -26,12 +23,12 @@ const Sidebar: React.FC<{
   }
 
   return (
-    <div className="w-1/4 h-full bg-gray-900 text-white flex flex-col">
+    <div className="w-auto max-w-xs h-full bg-gray-900 text-white flex flex-col">
       <AppBar position="static" className="bg-gray-800">
         <Toolbar>
           <ChatIcon />
           <Typography variant="h6" className="ml-2">
-            ChatGPT
+            Messages
           </Typography>
         </Toolbar>
       </AppBar>
@@ -41,7 +38,7 @@ const Sidebar: React.FC<{
             <ListItem
               button
               key={chatroom.id}
-              onClick={() => onSelectChatroom(chatroom.id)}
+              onClick={() => setSelectedChatroom(chatroom.id)}
               selected={chatroom.id === selectedChatroom}
               className={`hover:bg-gray-700 ${chatroom.id === selectedChatroom ? 'bg-gray-800' : ''}`}
             >

@@ -26,7 +26,16 @@ const useAuth = () => {
     }
   }
 
-  return { user, error, handleLogin, handleRegister }
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('username')
+      window.location.href = '/'
+    } catch (err) {
+      setError('Error logging out')
+    }
+  }
+
+  return { user, error, handleLogin, handleRegister, handleLogout }
 }
 
 export default useAuth
