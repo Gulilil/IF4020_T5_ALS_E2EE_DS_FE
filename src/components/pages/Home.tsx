@@ -29,7 +29,7 @@ const Home: React.FC = () => {
           Sign In
         </h4>
         <p className="mt-1 text-base text-center text-gray-700">
-          Nice to meet you! Enter your details to login.
+          Enter your details to login.
         </p>
         <form className="mt-8" onSubmit={onSubmit}>
           <div className="flex flex-col gap-4 mb-6">
