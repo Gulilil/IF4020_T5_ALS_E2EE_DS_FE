@@ -1,21 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
 import { ROUTES } from '../../constants/routes'
+import useChatRedirect from '../../hooks/useChatRedirect'
 
 const Home: React.FC = () => {
+  useChatRedirect()
+
   const { handleLogin } = useAuth()
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const navigate = useNavigate()
-
-  useEffect(() => {
-    const storedUsername = localStorage.getItem('username')
-    if (storedUsername) {
-      console.log(storedUsername)
-      navigate(ROUTES.CHATS)
-    }
-  }, [navigate])
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
