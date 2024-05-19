@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
-import { ROUTES } from '../../constants/routes'
 import useChatRedirect from '../../hooks/useChatRedirect'
 
 const Home: React.FC = () => {
@@ -10,12 +8,10 @@ const Home: React.FC = () => {
   const { handleLogin } = useAuth()
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-  const navigate = useNavigate()
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     handleLogin(username, password)
-    navigate(ROUTES.CHATS)
   }
 
   return (

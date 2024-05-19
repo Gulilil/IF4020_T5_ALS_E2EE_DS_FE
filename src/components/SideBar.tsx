@@ -9,13 +9,16 @@ import {
 } from '@mui/material'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import { useChat } from '../context/ChatContext'
+import { useNavigate } from 'react-router-dom'
+import { ROUTES } from '../constants/routes'
 
 const Sidebar: React.FC = () => {
   const { chatrooms, selectedChatroom, setSelectedChatroom } = useChat()
+  const navigate = useNavigate()
 
   const handleLogout = () => {
     localStorage.removeItem('username')
-    window.location.href = '/'
+    navigate(ROUTES.HOME)
   }
 
   return (
