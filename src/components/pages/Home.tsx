@@ -1,14 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 
 const Home: React.FC = () => {
   const { handleLogin } = useAuth();
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem('username');
+    if (storedUsername) {
+      navigate('/home-chat');
+    }
+  }, [navigate]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleLogin(username, password);
+    localStorage.setItem('username', username);
+    navigate('/home-chat');
   };
 
   return (
@@ -18,7 +29,7 @@ const Home: React.FC = () => {
           Sign In
         </h4>
         <p className="mt-1 text-base text-center text-gray-700">
-          Enter your details to login.
+          Nice to meet you! Enter your details to login.
         </p>
         <form className="mt-8" onSubmit={onSubmit}>
           <div className="flex flex-col gap-4 mb-6">
