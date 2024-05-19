@@ -1,4 +1,12 @@
-import React, { createContext, ReactNode, useContext, useState } from 'react'
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useState,
+  useEffect,
+} from 'react'
+import { SendMessagePayload, JoinRoomPayload } from '../dto/socket'
+import socket from '../api/socket'
 
 interface Message {
   text: string
@@ -40,11 +48,40 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     messageData,
   )
 
+  useEffect(() => {
+    if (selectedChatroom !== null) {
+      const payload: JoinRoomPayload = { roomId: selectedChatroom.toString() }
+      socket.emit('joinRoom', payload)
+
+      socket.on('roomMessages', (roomMessages) => {
+        setMessages((prevMessages) => ({
+          ...prevMessages,
+          [selectedChatroom]: roomMessages,
+        }))
+      })
+
+      socket.on('receiveMessage', (message) => {
+        setMessages((prevMessages) => ({
+          ...prevMessages,
+          [selectedChatroom]: [...prevMessages[selectedChatroom], message],
+        }))
+      })
+
+      return () => {
+        socket.off('roomMessages')
+        socket.off('receiveMessage')
+      }
+    }
+  }, [selectedChatroom])
+
   const addMessage = (chatroomId: number, message: string, user: string) => {
-    setMessages((prevMessages) => ({
-      ...prevMessages,
-      [chatroomId]: [...prevMessages[chatroomId], { text: message, user }],
-    }))
+    const payload: SendMessagePayload = {
+      roomId: chatroomId.toString(),
+      senderId: user,
+      receiverId: '',
+      message,
+    }
+    socket.emit('sendMessage', payload)
   }
 
   return (

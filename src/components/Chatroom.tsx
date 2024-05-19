@@ -13,7 +13,7 @@ import { useChat } from '../context/ChatContext'
 const Chatroom: React.FC = () => {
   const { selectedChatroom, messages, addMessage } = useChat()
   const [message, setMessage] = useState<string>('')
-  const currentUser = 'user1'
+  const currentUser = localStorage.getItem('id') || ''
 
   const handleSendMessage = () => {
     if (message.trim() && selectedChatroom !== null) {
@@ -46,8 +46,7 @@ const Chatroom: React.FC = () => {
             className={`mb-2 flex ${msg.user === currentUser ? 'justify-start' : 'justify-end'}`}
           >
             <div
-              className={`p-2 rounded text-{BDBDBD} w-fit break-words'
-              }`}
+              className={`p-2 rounded text-{BDBDBD} w-fit break-words`}
               style={{ maxWidth: '70%' }}
             >
               {msg.text}
