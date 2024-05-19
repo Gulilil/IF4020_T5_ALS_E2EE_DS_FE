@@ -12,6 +12,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
     if (storedUsername) {
+      console.log(storedUsername);
       navigate(ROUTES.CHATS);
     }
   }, [navigate]);
