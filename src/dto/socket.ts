@@ -8,3 +8,12 @@ export interface SendMessagePayload {
   receiverId: string
   message: string
 }
+
+export interface Message {
+  id: string
+  senderId: string
+  receiverId: string
+  createdAt: string
+  hashedMessage: string
+  roomChatId: number
+}

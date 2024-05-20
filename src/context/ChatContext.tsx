@@ -1,21 +1,7 @@
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useState,
-  useEffect,
-} from 'react'
-import { SendMessagePayload, JoinRoomPayload } from '../dto/socket'
+import { createContext, ReactNode, useContext, useState } from 'react'
+import { Message, SendMessagePayload } from '../dto/socket'
 import socket from '../api/socket'
-
-export interface Message {
-  id: string
-  senderId: string
-  receiverId: string
-  createdAt: string
-  hashedMessage: string
-  roomChatId: number
-}
+import { useJoinQueue, useJoinRoom } from '../hooks/useSocketHooks'
 
 interface ChatContextType {
   chatrooms: { id: number; name: string }[]
@@ -52,43 +38,17 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     { id: 1, name: 'General' },
     { id: 2, name: 'Random' },
     { id: 3, name: 'Support' },
+    { id: 4, name: 'Test Chatroom Data' },
   ]
 
   const [selectedChatroom, setSelectedChatroom] = useState<number | null>(null)
-  const [messages, setMessages] = useState<{ [key: number]: Message[] }>({})
   const [receiverId, setReceiverId] = useState<string | null>(null)
-  const [isRealTimeChat, setIsRealTimeChat] = useState<boolean>(false)
 
-  useEffect(() => {
-    if (selectedChatroom !== null) {
-      const payload: JoinRoomPayload = { roomId: selectedChatroom.toString() }
-      socket.emit('joinRoom', payload)
-
-      socket.on('receiveMessage', (message: Message) => {
-        console.log('Message received:', message)
-        setMessages((prevMessages) => ({
-          ...prevMessages,
-          [message.roomChatId]: [
-            ...(prevMessages[message.roomChatId] || []),
-            message,
-          ],
-        }))
-      })
-
-      socket.on('roomMessages', (roomMessages: Message[]) => {
-        console.log('Room messages received:', roomMessages)
-        setMessages((prevMessages) => ({
-          ...prevMessages,
-          [selectedChatroom]: roomMessages,
-        }))
-      })
-
-      return () => {
-        socket.off('roomMessages')
-        socket.off('receiveMessage')
-      }
-    }
-  }, [selectedChatroom])
+  const messages = useJoinRoom(selectedChatroom)
+  const { isRealTimeChat, joinQueue, joinRealTimeQueue } = useJoinQueue(
+    setSelectedChatroom,
+    setReceiverId,
+  )
 
   const addMessage = (
     chatroomId: number,
@@ -105,44 +65,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     socket.emit('sendMessage', payload)
   }
 
-  const joinQueue = (userId: string, chatroomId: number) => {
-    setIsRealTimeChat(false)
-    socket.emit('joinQueue', { userId, chatroomId })
-
-    socket.on(
-      'matched',
-      ({ roomId, receiverId }: { roomId: string; receiverId: string }) => {
-        setSelectedChatroom(Number(roomId))
-        setReceiverId(receiverId)
-        console.log(`Matched to room: ${roomId}`)
-      },
-    )
-
-    socket.on('error', (message: string) => {
-      console.error(message)
-    })
-  }
-
   const fetchMessages = (chatroomId: number) => {
     socket.emit('fetchMessages', { roomId: chatroomId.toString() })
-  }
-
-  const joinRealTimeQueue = (userId: string) => {
-    setIsRealTimeChat(true)
-    socket.emit('joinRealTimeQueue', { userId })
-
-    socket.on(
-      'matchedRealTime',
-      ({ roomId, receiverId }: { roomId: string; receiverId: string }) => {
-        setSelectedChatroom(Number(roomId))
-        setReceiverId(receiverId)
-        console.log(`Matched to real-time room: ${roomId}`)
-      },
-    )
-
-    socket.on('error', (message: string) => {
-      console.error(message)
-    })
   }
 
   const addRealTimeMessage = (

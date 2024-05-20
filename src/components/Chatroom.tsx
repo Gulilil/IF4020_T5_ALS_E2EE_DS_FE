@@ -11,7 +11,15 @@ import SendIcon from '@mui/icons-material/Send'
 import { useChat } from '../context/ChatContext'
 
 const Chatroom: React.FC = () => {
-  const { selectedChatroom, messages, addMessage, addRealTimeMessage, receiverId, fetchMessages, isRealTimeChat } = useChat()
+  const {
+    selectedChatroom,
+    messages,
+    addMessage,
+    addRealTimeMessage,
+    receiverId,
+    fetchMessages,
+    isRealTimeChat,
+  } = useChat()
   const [message, setMessage] = useState<string>('')
   const currentUser = localStorage.getItem('id') || 'user1'
 

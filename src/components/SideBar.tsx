@@ -13,7 +13,13 @@ import useAuth from '../hooks/useAuth'
 
 const Sidebar: React.FC = () => {
   const { handleLogout } = useAuth()
-  const { chatrooms, selectedChatroom, setSelectedChatroom, joinQueue, joinRealTimeQueue } = useChat()
+  const {
+    chatrooms,
+    selectedChatroom,
+    setSelectedChatroom,
+    joinQueue,
+    joinRealTimeQueue,
+  } = useChat()
   const currentUser = localStorage.getItem('id') || 'user1'
 
   const handleJoinQueue = (chatroomId: number) => {
