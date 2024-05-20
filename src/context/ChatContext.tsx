@@ -1,10 +1,11 @@
-import { createContext, ReactNode, useContext, useState } from 'react'
-import { Message, SendMessagePayload } from '../dto/socket'
+import { createContext, ReactNode, useContext } from 'react'
+import { Chatroom, Message, SendMessagePayload } from '../dto/socket'
 import socket from '../api/socket'
 import { useJoinQueue, useJoinRoom } from '../hooks/useSocketHooks'
+import { useChatroom } from '../hooks/useChatroom'
 
 interface ChatContextType {
-  chatrooms: { id: number; name: string }[]
+  chatrooms: Chatroom[] | null
   messages: { [key: number]: Message[] }
   selectedChatroom: number | null
   receiverId: string | null
@@ -25,6 +26,7 @@ interface ChatContextType {
   joinQueue: (userId: string, chatroomId: number) => void
   joinRealTimeQueue: (userId: string) => void
   fetchMessages: (chatroomId: number) => void
+  deleteChatroom: (chatroomId: number) => void
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
@@ -34,15 +36,14 @@ interface ChatProviderProps {
 }
 
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
-  const chatroomData = [
-    { id: 1, name: 'General' },
-    { id: 2, name: 'Random' },
-    { id: 3, name: 'Support' },
-    { id: 4, name: 'Test Chatroom Data' },
-  ]
-
-  const [selectedChatroom, setSelectedChatroom] = useState<number | null>(null)
-  const [receiverId, setReceiverId] = useState<string | null>(null)
+  const {
+    chatrooms,
+    selectedChatroom,
+    setSelectedChatroom,
+    receiverId,
+    setReceiverId,
+    deleteChatroom,
+  } = useChatroom();
 
   const messages = useJoinRoom(selectedChatroom)
   const { isRealTimeChat, joinQueue, joinRealTimeQueue } = useJoinQueue(
@@ -87,7 +88,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   return (
     <ChatContext.Provider
       value={{
-        chatrooms: chatroomData,
+        chatrooms,
         messages,
         selectedChatroom,
         receiverId,
@@ -98,6 +99,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         joinRealTimeQueue,
         fetchMessages,
         isRealTimeChat,
+        deleteChatroom,
       }}
     >
       {children}

@@ -17,3 +17,9 @@ export interface Message {
   hashedMessage: string
   roomChatId: number
 }
+
+export interface Chatroom {
+  chatroomId: number
+  name: string
+  isRemovable: boolean
+}
