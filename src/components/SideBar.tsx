@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import {
   List,
   ListItem,
@@ -8,14 +8,15 @@ import {
   Divider,
   ListItemSecondaryAction,
   IconButton,
-} from '@mui/material'
-import ExitToAppIcon from '@mui/icons-material/ExitToApp'
-import DeleteIcon from '@mui/icons-material/Delete'
-import { useChat } from '../context/ChatContext'
-import useAuth from '../hooks/useAuth'
+  CircularProgress,
+} from '@mui/material';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useChat } from '../context/ChatContext';
+import useAuth from '../hooks/useAuth';
 
 const Sidebar: React.FC = () => {
-  const { handleLogout } = useAuth()
+  const { handleLogout } = useAuth();
   const {
     chatrooms,
     selectedChatroom,
@@ -23,61 +24,68 @@ const Sidebar: React.FC = () => {
     joinQueue,
     joinRealTimeQueue,
     deleteChatroom,
-  } = useChat()
-
-  const currentUser = localStorage.getItem('id') || 'user1'
+    loading,
+  } = useChat();
+  
+  const currentUser = localStorage.getItem('id') || 'user1';
 
   const handleJoinQueue = (chatroomId: number) => {
-    joinQueue(currentUser, chatroomId)
-  }
+    joinQueue(currentUser, chatroomId);
+  };
 
   const handleJoinRealTimeQueue = () => {
-    setSelectedChatroom(-1)
-    joinRealTimeQueue(currentUser)
-  }
+    setSelectedChatroom(-1);
+    joinRealTimeQueue(currentUser);
+  };
 
   return (
     <div className="w-60 h-full bg-gray-900 text-white flex flex-col">
       <Box className="flex-1 overflow-y-auto bg-custom-chatroom-sidebar">
-        <List>
-          {chatrooms && chatrooms.length > 0 ? (
-            chatrooms.map((chatroom) => (
-              <ListItem
-                button
-                key={chatroom.chatroomId}
-                onClick={() => {
-                  setSelectedChatroom(chatroom.chatroomId)
-                  handleJoinQueue(chatroom.chatroomId)
-                }}
-                selected={chatroom.chatroomId === selectedChatroom}
-                className={`hover:bg-gray-700 ${chatroom.chatroomId === selectedChatroom ? 'bg-gray-800' : ''}`}
-              >
-                <ListItemText primary={chatroom.name} />
-                {chatroom.isRemovable && (
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      edge="end"
-                      aria-label="delete"
-                      onClick={() => deleteChatroom(chatroom.chatroomId)}
-                      sx={{
-                        color: 'white',
-                        '&:hover': {
-                          color: 'red',
-                        },
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                )}
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+            <CircularProgress color="inherit" />
+          </Box>
+        ) : (
+          <List>
+            {chatrooms && chatrooms.length > 0 ? (
+              chatrooms.map((chatroom) => (
+                <ListItem
+                  button
+                  key={chatroom.chatroomId}
+                  onClick={() => {
+                    setSelectedChatroom(chatroom.chatroomId);
+                    handleJoinQueue(chatroom.chatroomId);
+                  }}
+                  selected={chatroom.chatroomId === selectedChatroom}
+                  className={`hover:bg-gray-700 ${chatroom.chatroomId === selectedChatroom ? 'bg-gray-800' : ''}`}
+                >
+                  <ListItemText primary={chatroom.name} />
+                  {chatroom.isRemovable && (
+                    <ListItemSecondaryAction>
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => deleteChatroom(chatroom.chatroomId)}
+                        sx={{
+                          color: 'white',
+                          '&:hover': {
+                            color: 'red',
+                          },
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  )}
+                </ListItem>
+              ))
+            ) : (
+              <ListItem>
+                <ListItemText primary="No chatrooms available" />
               </ListItem>
-            ))
-          ) : (
-            <ListItem>
-              <ListItemText primary="No chatrooms available" />
-            </ListItem>
-          )}
-        </List>
+            )}
+          </List>
+        )}
       </Box>
       <Divider className="bg-custom-chatroom-sidebar" />
       <Box className="p-4 bg-custom-chatroom-sidebar">
@@ -113,7 +121,7 @@ const Sidebar: React.FC = () => {
         </Button>
       </Box>
     </div>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

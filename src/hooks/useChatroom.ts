@@ -7,6 +7,7 @@ export const useChatroom = () => {
   const [chatrooms, setChatrooms] = useState<Chatroom[]>([])
   const [selectedChatroom, setSelectedChatroom] = useState<number | null>(null)
   const [receiverId, setReceiverId] = useState<string | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const initializeChatrooms = async () => {
@@ -20,6 +21,7 @@ export const useChatroom = () => {
       }))
 
       setChatrooms([...userChatrooms])
+      setLoading(false)
 
       socket.on('chatroomDeleted', (chatroomId: number) => {
         setChatrooms((prevChatrooms) =>
@@ -58,5 +60,6 @@ export const useChatroom = () => {
     receiverId,
     setReceiverId,
     deleteChatroom,
+    loading,
   }
 }

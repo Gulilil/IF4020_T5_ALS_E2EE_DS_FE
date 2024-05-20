@@ -27,6 +27,7 @@ interface ChatContextType {
   joinRealTimeQueue: (userId: string) => void
   fetchMessages: (chatroomId: number) => void
   deleteChatroom: (chatroomId: number) => void
+  loading: boolean
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
@@ -43,6 +44,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     receiverId,
     setReceiverId,
     deleteChatroom,
+    loading
   } = useChatroom()
 
   const messages = useJoinRoom(selectedChatroom)
@@ -100,6 +102,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         fetchMessages,
         isRealTimeChat,
         deleteChatroom,
+        loading
       }}
     >
       {children}
