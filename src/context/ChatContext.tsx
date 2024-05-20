@@ -43,7 +43,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     receiverId,
     setReceiverId,
     deleteChatroom,
-  } = useChatroom();
+  } = useChatroom()
 
   const messages = useJoinRoom(selectedChatroom)
   const { isRealTimeChat, joinQueue, joinRealTimeQueue } = useJoinQueue(

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import socket from '../api/socket'
 import { Chatroom } from '../dto/socket'
-
+import { getChatroomIds } from '../api/endpoints/roomchat'
 
 export const useChatroom = () => {
   const [chatrooms, setChatrooms] = useState<Chatroom[]>([])
@@ -9,24 +9,44 @@ export const useChatroom = () => {
   const [receiverId, setReceiverId] = useState<string | null>(null)
 
   useEffect(() => {
-    const initialChatrooms = [
-      { chatroomId: 1, name: 'General', isRemovable: false },
-      { chatroomId: 2, name: 'Random', isRemovable: false },
-      { chatroomId: 3, name: 'Support', isRemovable: false },
-      { chatroomId: 4, name: 'Test Chatroom Data', isRemovable: true },
-    ];
-    setChatrooms(initialChatrooms);
-  }, []);
+    const initializeChatrooms = async () => {
+      const currentUser = localStorage.getItem('id') || 'user1';
+      const chatroomIds = await getChatroomIds(currentUser);
+
+      const userChatrooms = chatroomIds.map((id: number) => ({
+        chatroomId: id,
+        name: `Chatroom ${id}`,
+        isRemovable: true,
+      }));
+
+      setChatrooms([...userChatrooms]);
+
+      socket.on('chatroomDeleted', (chatroomId: number) => {
+        setChatrooms((prevChatrooms) =>
+          prevChatrooms.filter((chatroom) => chatroom.chatroomId !== chatroomId)
+        );
+        if (selectedChatroom === chatroomId) {
+          setSelectedChatroom(null);
+        }
+      });
+    };
+
+    initializeChatrooms();
+
+    return () => {
+      socket.off('chatroomDeleted');
+    };
+  }, [selectedChatroom]);
 
   const deleteChatroom = (chatroomId: number) => {
     setChatrooms((prevChatrooms) =>
       prevChatrooms.filter((chatroom) => chatroom.chatroomId !== chatroomId),
-    );
+    )
     if (selectedChatroom === chatroomId) {
-      setSelectedChatroom(null);
+      setSelectedChatroom(null)
     }
-    socket.emit('deleteChatroom', { chatroomId });
-  };
+    socket.emit('deleteChatroom', { chatroomId })
+  }
 
   return {
     chatrooms,
