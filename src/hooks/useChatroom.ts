@@ -10,33 +10,35 @@ export const useChatroom = () => {
 
   useEffect(() => {
     const initializeChatrooms = async () => {
-      const currentUser = localStorage.getItem('id') || 'user1';
-      const chatroomIds = await getChatroomIds(currentUser);
+      const currentUser = localStorage.getItem('id') || 'user1'
+      const chatroomIds = await getChatroomIds(currentUser)
 
       const userChatrooms = chatroomIds.map((id: number) => ({
         chatroomId: id,
         name: `Chatroom ${id}`,
         isRemovable: true,
-      }));
+      }))
 
-      setChatrooms([...userChatrooms]);
+      setChatrooms([...userChatrooms])
 
       socket.on('chatroomDeleted', (chatroomId: number) => {
         setChatrooms((prevChatrooms) =>
-          prevChatrooms.filter((chatroom) => chatroom.chatroomId !== chatroomId)
-        );
+          prevChatrooms.filter(
+            (chatroom) => chatroom.chatroomId !== chatroomId,
+          ),
+        )
         if (selectedChatroom === chatroomId) {
-          setSelectedChatroom(null);
+          setSelectedChatroom(null)
         }
-      });
-    };
+      })
+    }
 
-    initializeChatrooms();
+    initializeChatrooms()
 
     return () => {
-      socket.off('chatroomDeleted');
-    };
-  }, [selectedChatroom]);
+      socket.off('chatroomDeleted')
+    }
+  }, [selectedChatroom])
 
   const deleteChatroom = (chatroomId: number) => {
     setChatrooms((prevChatrooms) =>
