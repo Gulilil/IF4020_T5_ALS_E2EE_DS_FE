@@ -114,7 +114,7 @@ const Sidebar: React.FC = () => {
         <Button
           variant="contained"
           sx={{
-            backgroundColor: '#666666',
+            backgroundColor: '#a54d06',
             color: '#ffffff',
             '&:hover': {
               backgroundColor: '#777777',
