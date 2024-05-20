@@ -8,6 +8,7 @@ export const useChatroom = () => {
   const [selectedChatroom, setSelectedChatroom] = useState<number | null>(null)
   const [receiverId, setReceiverId] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
+  const [waitingForMatch, setWaitingForMatch] = useState<boolean>(false)
 
   useEffect(() => {
     const initializeChatrooms = async () => {
@@ -33,12 +34,22 @@ export const useChatroom = () => {
           setSelectedChatroom(null)
         }
       })
+
+      socket.on(
+        'matchedRealTime',
+        ({ roomId, receiverId }: { roomId: number; receiverId: string }) => {
+          setSelectedChatroom(roomId)
+          setReceiverId(receiverId)
+          setWaitingForMatch(false)
+        },
+      )
     }
 
     initializeChatrooms()
 
     return () => {
       socket.off('chatroomDeleted')
+      socket.off('matchedRealTime')
     }
   }, [selectedChatroom])
 
@@ -61,5 +72,7 @@ export const useChatroom = () => {
     setReceiverId,
     deleteChatroom,
     loading,
+    waitingForMatch,
+    setWaitingForMatch,
   }
 }

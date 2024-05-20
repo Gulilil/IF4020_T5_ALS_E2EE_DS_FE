@@ -40,6 +40,7 @@ export const useJoinRoom = (selectedChatroom: number | null) => {
 export const useJoinQueue = (
   setSelectedChatroom: (id: number | null) => void,
   setReceiverId: (id: string | null) => void,
+  setWaitingForMatch: (waiting: boolean) => void,
 ) => {
   const [isRealTimeChat, setIsRealTimeChat] = useState<boolean>(false)
 
@@ -62,6 +63,7 @@ export const useJoinQueue = (
 
   const joinRealTimeQueue = (userId: string) => {
     setIsRealTimeChat(true)
+    setWaitingForMatch(true)
     socket.emit('joinRealTimeQueue', { userId })
 
     socket.on(
@@ -69,11 +71,13 @@ export const useJoinQueue = (
       ({ roomId, receiverId }: { roomId: string; receiverId: string }) => {
         setSelectedChatroom(Number(roomId))
         setReceiverId(receiverId)
+        setWaitingForMatch(false)
       },
     )
 
     socket.on('error', (message: string) => {
       console.error(message)
+      setWaitingForMatch(false)
     })
   }
 

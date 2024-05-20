@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   List,
   ListItem,
@@ -9,14 +8,15 @@ import {
   ListItemSecondaryAction,
   IconButton,
   CircularProgress,
-} from '@mui/material';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { useChat } from '../context/ChatContext';
-import useAuth from '../hooks/useAuth';
+} from '@mui/material'
+import ExitToAppIcon from '@mui/icons-material/ExitToApp'
+import DeleteIcon from '@mui/icons-material/Delete'
+import { useChat } from '../context/ChatContext'
+import useAuth from '../hooks/useAuth'
+import LoadingOverlay from '../components/LoadingOverlay'
 
 const Sidebar: React.FC = () => {
-  const { handleLogout } = useAuth();
+  const { handleLogout } = useAuth()
   const {
     chatrooms,
     selectedChatroom,
@@ -25,24 +25,31 @@ const Sidebar: React.FC = () => {
     joinRealTimeQueue,
     deleteChatroom,
     loading,
-  } = useChat();
-  
-  const currentUser = localStorage.getItem('id') || 'user1';
+    waitingForMatch,
+  } = useChat()
+
+  const currentUser = localStorage.getItem('id') || 'user1'
 
   const handleJoinQueue = (chatroomId: number) => {
-    joinQueue(currentUser, chatroomId);
-  };
+    joinQueue(currentUser, chatroomId)
+  }
 
   const handleJoinRealTimeQueue = () => {
-    setSelectedChatroom(-1);
-    joinRealTimeQueue(currentUser);
-  };
+    setSelectedChatroom(null)
+    joinRealTimeQueue(currentUser)
+  }
 
   return (
     <div className="w-60 h-full bg-gray-900 text-white flex flex-col">
+      {waitingForMatch && <LoadingOverlay />}
       <Box className="flex-1 overflow-y-auto bg-custom-chatroom-sidebar">
         {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100%"
+          >
             <CircularProgress color="inherit" />
           </Box>
         ) : (
@@ -53,8 +60,8 @@ const Sidebar: React.FC = () => {
                   button
                   key={chatroom.chatroomId}
                   onClick={() => {
-                    setSelectedChatroom(chatroom.chatroomId);
-                    handleJoinQueue(chatroom.chatroomId);
+                    setSelectedChatroom(chatroom.chatroomId)
+                    handleJoinQueue(chatroom.chatroomId)
                   }}
                   selected={chatroom.chatroomId === selectedChatroom}
                   className={`hover:bg-gray-700 ${chatroom.chatroomId === selectedChatroom ? 'bg-gray-800' : ''}`}
@@ -116,12 +123,13 @@ const Sidebar: React.FC = () => {
           }}
           fullWidth
           onClick={handleJoinRealTimeQueue}
+          disabled={waitingForMatch}
         >
           Join Real-Time Queue
         </Button>
       </Box>
     </div>
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Sidebar
