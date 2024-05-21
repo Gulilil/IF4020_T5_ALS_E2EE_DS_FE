@@ -21,22 +21,24 @@ const Sidebar: React.FC = () => {
     chatrooms,
     selectedChatroom,
     setSelectedChatroom,
-    joinQueue,
     joinRealTimeQueue,
     deleteChatroom,
     loading,
     waitingForMatch,
+    setIsRealTime,
   } = useChat()
 
   const currentUser = localStorage.getItem('id') || 'user1'
 
-  const handleJoinQueue = (chatroomId: number) => {
-    joinQueue(currentUser, chatroomId)
-  }
-
   const handleJoinRealTimeQueue = () => {
     setSelectedChatroom(null)
+    setIsRealTime(true)
     joinRealTimeQueue(currentUser)
+  }
+
+  const handleChatroomClick = (chatroomId: number) => {
+    setSelectedChatroom(chatroomId)
+    setIsRealTime(false)
   }
 
   return (
@@ -59,10 +61,7 @@ const Sidebar: React.FC = () => {
                 <ListItem
                   button
                   key={chatroom.chatroomId}
-                  onClick={() => {
-                    setSelectedChatroom(chatroom.chatroomId)
-                    handleJoinQueue(chatroom.chatroomId)
-                  }}
+                  onClick={() => handleChatroomClick(chatroom.chatroomId)}
                   selected={chatroom.chatroomId === selectedChatroom}
                   className={`hover:bg-gray-700 ${chatroom.chatroomId === selectedChatroom ? 'bg-gray-800' : ''}`}
                 >

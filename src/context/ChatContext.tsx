@@ -1,34 +1,28 @@
-import { createContext, ReactNode, useContext } from 'react'
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 import { Chatroom, Message, SendMessagePayload } from '../dto/socket'
 import socket from '../api/socket'
 import { useJoinQueue, useJoinRoom } from '../hooks/useSocketHooks'
 import { useChatroom } from '../hooks/useChatroom'
+import { getMessagesInChatroom } from '../api/endpoints/roomchat';
 
 interface ChatContextType {
   chatrooms: Chatroom[] | null
   messages: { [key: number]: Message[] }
   selectedChatroom: number | null
   receiverId: string | null
+  isRealTime: boolean
   setSelectedChatroom: (id: number | null) => void
-  addMessage: (
-    chatroomId: number,
-    message: string,
-    user: string,
-    receiverId: string,
-  ) => void
   addRealTimeMessage: (
     chatroomId: number,
     message: string,
     user: string,
     receiverId: string,
   ) => void
-  isRealTimeChat: boolean
-  joinQueue: (userId: string, chatroomId: number) => void
   joinRealTimeQueue: (userId: string) => void
-  fetchMessages: (chatroomId: number) => void
   deleteChatroom: (chatroomId: number) => void
   loading: boolean
   waitingForMatch: boolean
+  setIsRealTime: (isRealTime: boolean) => void
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
@@ -50,31 +44,37 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     setWaitingForMatch,
   } = useChatroom()
 
-  const messages = useJoinRoom(selectedChatroom)
-  const { isRealTimeChat, joinQueue, joinRealTimeQueue } = useJoinQueue(
+  const [isRealTime, setIsRealTime] = useState<boolean>(false)
+
+  const realTimeMessages = useJoinRoom(selectedChatroom)
+  
+  const [messages, setMessages] = useState<{ [key: number]: Message[] }>({})
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (selectedChatroom !== null && !isRealTime) {
+        const fetchedMessages = await getMessagesInChatroom(selectedChatroom)
+        setMessages(prevMessages => ({
+          ...prevMessages,
+          [selectedChatroom]: fetchedMessages,
+        }))
+      }
+    }
+
+    fetchMessages()
+  }, [selectedChatroom, isRealTime])
+
+  useEffect(() => {
+    if (isRealTime) {
+      setMessages(realTimeMessages)
+    }
+  }, [realTimeMessages, isRealTime])
+
+  const { joinRealTimeQueue } = useJoinQueue(
     setSelectedChatroom,
     setReceiverId,
     setWaitingForMatch,
   )
-
-  const addMessage = (
-    chatroomId: number,
-    message: string,
-    user: string,
-    receiverId: string,
-  ) => {
-    const payload: SendMessagePayload = {
-      roomId: chatroomId.toString(),
-      senderId: user,
-      receiverId,
-      message,
-    }
-    socket.emit('sendMessage', payload)
-  }
-
-  const fetchMessages = (chatroomId: number) => {
-    socket.emit('fetchMessages', { roomId: chatroomId.toString() })
-  }
 
   const addRealTimeMessage = (
     chatroomId: number,
@@ -98,16 +98,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         messages,
         selectedChatroom,
         receiverId,
+        isRealTime,
         setSelectedChatroom,
-        addMessage,
         addRealTimeMessage,
-        joinQueue,
         joinRealTimeQueue,
-        fetchMessages,
-        isRealTimeChat,
         deleteChatroom,
         loading,
         waitingForMatch,
+        setIsRealTime,
       }}
     >
       {children}

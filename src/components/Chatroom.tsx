@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   Box,
   TextField,
@@ -14,35 +14,19 @@ const Chatroom: React.FC = () => {
   const {
     selectedChatroom,
     messages,
-    addMessage,
     addRealTimeMessage,
     receiverId,
-    fetchMessages,
-    isRealTimeChat,
+    isRealTime,
   } = useChat()
   const [message, setMessage] = useState<string>('')
   const currentUser = localStorage.getItem('id') || 'user1'
 
   const handleSendMessage = () => {
-    if (message.trim() && selectedChatroom !== null && receiverId) {
-      if (isRealTimeChat) {
-        console.log(selectedChatroom)
-        addRealTimeMessage(selectedChatroom, message, currentUser, receiverId)
-      } else {
-        addMessage(selectedChatroom, message, currentUser, receiverId)
-      }
+    if (message.trim() && selectedChatroom !== null && receiverId && isRealTime) {
+      addRealTimeMessage(selectedChatroom, message, currentUser, receiverId)
       setMessage('')
     }
   }
-
-  useEffect(() => {
-    if (selectedChatroom !== null && !isRealTimeChat) {
-      const interval = setInterval(() => {
-        fetchMessages(selectedChatroom)
-      }, 3000)
-      return () => clearInterval(interval)
-    }
-  }, [selectedChatroom, fetchMessages, isRealTimeChat])
 
   if (selectedChatroom === null) {
     return (
@@ -57,7 +41,7 @@ const Chatroom: React.FC = () => {
       <AppBar position="static" sx={{ backgroundColor: '#1A1A1A' }}>
         <Toolbar>
           <Typography variant="h6" className="text-white flex-1">
-            {`Chatroom ${isRealTimeChat ? 'Real-Time' : selectedChatroom}`}
+            {`Chatroom ${selectedChatroom}`}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -114,8 +98,9 @@ const Chatroom: React.FC = () => {
               color: '#ffffff',
             },
           }}
+          disabled={!isRealTime}
         />
-        <IconButton sx={{ color: '#CCCCCC' }} onClick={handleSendMessage}>
+        <IconButton sx={{ color: '#CCCCCC' }} onClick={handleSendMessage} disabled={!isRealTime}>
           <SendIcon />
         </IconButton>
       </footer>
@@ -124,3 +109,4 @@ const Chatroom: React.FC = () => {
 }
 
 export default Chatroom
+
