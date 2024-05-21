@@ -40,7 +40,7 @@ const AppRoutes: React.FC = () => {
       }
 
       try {
-        const response = await apiClient.post('/', {
+        const response = await apiClient.post('/key', {
           key: clientPublicKey.encode('hex', false),
         })
 
