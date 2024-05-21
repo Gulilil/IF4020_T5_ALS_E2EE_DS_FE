@@ -1,3 +1,4 @@
+import { ec as EC } from 'elliptic'
 import {
   List,
   ListItem,
@@ -8,12 +9,21 @@ import {
   ListItemSecondaryAction,
   IconButton,
   CircularProgress,
+  Snackbar,
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material'
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useChat } from '../context/ChatContext'
 import useAuth from '../hooks/useAuth'
 import LoadingOverlay from '../components/LoadingOverlay'
+import { useState } from 'react'
+import { saveAs } from 'file-saver'
 
 const Sidebar: React.FC = () => {
   const { handleLogout } = useAuth()
@@ -27,9 +37,24 @@ const Sidebar: React.FC = () => {
     waitingForMatch,
     setIsRealTime,
   } = useChat()
+  const [privateKey, setPrivateKey] = useState('')
+  const [publicKey, setPulicKey] = useState('')
+  const [openDialog, setOpenDialog] = useState(false)
 
   const currentUser = localStorage.getItem('id') || 'user1'
 
+  const handleGenerateKey = () => {
+    const ec = new EC('secp256k1')
+    const key = ec.genKeyPair()
+    const privateKey = key.getPrivate()
+    const publicKey = key.getPublic()
+    setPrivateKey(privateKey.toString('hex'))
+    setPulicKey(publicKey.encode('hex', false))
+    setOpenDialog(true)
+  }
+  const handleCloseDialog = () => {
+    setOpenDialog(false)
+  }
   const handleJoinRealTimeQueue = () => {
     setSelectedChatroom(null)
     setIsRealTime(true)
@@ -40,7 +65,15 @@ const Sidebar: React.FC = () => {
     setSelectedChatroom(chatroomId)
     setIsRealTime(false)
   }
+  const handleDownloadPrivateKey = () => {
+    const blob = new Blob([privateKey], { type: 'text/plain;charset=utf-8' })
+    saveAs(blob, 'private_key.ecpriv')
+  }
 
+  const handleDownloadPublicKey = () => {
+    const blob = new Blob([publicKey], { type: 'text/plain;charset=utf-8' })
+    saveAs(blob, 'public_key.ecpub')
+  }
   return (
     <div className="w-60 h-full bg-gray-900 text-white flex flex-col">
       {waitingForMatch && <LoadingOverlay />}
@@ -126,7 +159,82 @@ const Sidebar: React.FC = () => {
         >
           Join Real-Time Queue
         </Button>
+        <Button
+          variant="contained"
+          sx={{
+            backgroundColor: '#222222',
+            color: '#ffffff',
+            '&:hover': {
+              backgroundColor: '#777777',
+            },
+            marginTop: '10px',
+          }}
+          fullWidth
+          onClick={handleGenerateKey}
+        >
+          Generate Key
+        </Button>
       </Box>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        aria-labelledby="key-dialog-title"
+        aria-describedby="key-dialog-description"
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle id="key-dialog-title">Generated Keys</DialogTitle>
+        <DialogContent dividers>
+          <DialogContentText
+            id="key-dialog-description"
+            sx={{
+              fontSize: '16px',
+              fontWeight: 'bolder',
+            }}
+          >
+            Private Key
+          </DialogContentText>
+          <DialogContentText
+            sx={{
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              fontSize: '12px',
+            }}
+          >
+            {privateKey}
+          </DialogContentText>
+          <DialogContentText
+            id="key-dialog-description"
+            sx={{
+              fontSize: '16px',
+              fontWeight: 'bolder',
+              marginTop: '1rem',
+            }}
+          >
+            Public Key
+          </DialogContentText>
+          <DialogContentText
+            sx={{
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              fontSize: '12px',
+            }}
+          >
+            {publicKey}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDownloadPrivateKey} color="primary">
+            Download Private Key
+          </Button>
+          <Button onClick={handleDownloadPublicKey} color="primary">
+            Download Public Key
+          </Button>
+          <Button onClick={handleCloseDialog} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   )
 }

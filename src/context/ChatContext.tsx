@@ -1,9 +1,15 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { Chatroom, Message, SendMessagePayload } from '../dto/socket'
 import socket from '../api/socket'
 import { useJoinQueue, useJoinRoom } from '../hooks/useSocketHooks'
 import { useChatroom } from '../hooks/useChatroom'
-import { getMessagesInChatroom } from '../api/endpoints/roomchat';
+import { getMessagesInChatroom } from '../api/endpoints/roomchat'
 
 interface ChatContextType {
   chatrooms: Chatroom[] | null
@@ -47,14 +53,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [isRealTime, setIsRealTime] = useState<boolean>(false)
 
   const realTimeMessages = useJoinRoom(selectedChatroom)
-  
+
   const [messages, setMessages] = useState<{ [key: number]: Message[] }>({})
 
   useEffect(() => {
     const fetchMessages = async () => {
       if (selectedChatroom !== null && !isRealTime) {
         const fetchedMessages = await getMessagesInChatroom(selectedChatroom)
-        setMessages(prevMessages => ({
+        setMessages((prevMessages) => ({
           ...prevMessages,
           [selectedChatroom]: fetchedMessages,
         }))
