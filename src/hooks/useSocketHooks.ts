@@ -1,4 +1,39 @@
+import { useEffect, useState } from 'react'
 import socket from '../api/socket'
+import { Message } from '../dto/socket'
+
+export const useJoinRoom = (selectedChatroom: number | null) => {
+  const [messages, setMessages] = useState<{ [key: number]: Message[] }>({})
+
+  useEffect(() => {
+    if (selectedChatroom !== null) {
+
+      socket.on('receiveMessage', (message: Message) => {
+        setMessages((prevMessages) => ({
+          ...prevMessages,
+          [message.roomChatId]: [
+            ...(prevMessages[message.roomChatId] || []),
+            message,
+          ],
+        }))
+      })
+
+      socket.on('roomMessages', (roomMessages: Message[]) => {
+        setMessages((prevMessages) => ({
+          ...prevMessages,
+          [selectedChatroom]: roomMessages,
+        }))
+      })
+
+      return () => {
+        socket.off('roomMessages')
+        socket.off('receiveMessage')
+      }
+    }
+  }, [selectedChatroom])
+
+  return messages
+}
 
 export const useJoinQueue = (
   setSelectedChatroom: (id: number | null) => void,
