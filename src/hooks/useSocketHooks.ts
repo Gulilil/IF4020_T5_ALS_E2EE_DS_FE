@@ -7,7 +7,6 @@ export const useJoinRoom = (selectedChatroom: number | null) => {
 
   useEffect(() => {
     if (selectedChatroom !== null) {
-
       socket.on('receiveMessage', (message: Message) => {
         setMessages((prevMessages) => ({
           ...prevMessages,

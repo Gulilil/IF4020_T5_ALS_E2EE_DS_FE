@@ -1,4 +1,3 @@
-import { ec as EC } from 'elliptic'
 import {
   List,
   ListItem,
@@ -9,8 +8,6 @@ import {
   ListItemSecondaryAction,
   IconButton,
   CircularProgress,
-  Snackbar,
-  Alert,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -24,6 +21,7 @@ import useAuth from '../hooks/useAuth'
 import LoadingOverlay from '../components/LoadingOverlay'
 import { useState } from 'react'
 import { saveAs } from 'file-saver'
+import useKey from '../hooks/useKey'
 
 const Sidebar: React.FC = () => {
   const { handleLogout } = useAuth()
@@ -37,24 +35,35 @@ const Sidebar: React.FC = () => {
     waitingForMatch,
     setIsRealTime,
   } = useChat()
-  const [privateKey, setPrivateKey] = useState('')
-  const [publicKey, setPulicKey] = useState('')
+
+  const {
+    privateE2EEKey,
+    publicE2EEKey,
+    handleGenerateE2EEKey,
+    privateSchnorrKey,
+    publicSchnorrKey,
+    handleGenerateSchnorrKey,
+  } = useKey()
+
   const [openDialog, setOpenDialog] = useState(false)
+  const [dialogType, setDialogType] = useState<'E2EE' | 'Schnorr'>('E2EE')
 
   const currentUser = localStorage.getItem('id') || 'user1'
 
-  const handleGenerateKey = () => {
-    const ec = new EC('secp256k1')
-    const key = ec.genKeyPair()
-    const privateKey = key.getPrivate()
-    const publicKey = key.getPublic()
-    setPrivateKey(privateKey.toString('hex'))
-    setPulicKey(publicKey.encode('hex', false))
+  const handleGenerateKey = (type: 'E2EE' | 'Schnorr') => {
+    if (type === 'E2EE') {
+      handleGenerateE2EEKey()
+    } else {
+      handleGenerateSchnorrKey()
+    }
+    setDialogType(type)
     setOpenDialog(true)
   }
+
   const handleCloseDialog = () => {
     setOpenDialog(false)
   }
+
   const handleJoinRealTimeQueue = () => {
     setSelectedChatroom(null)
     setIsRealTime(true)
@@ -65,15 +74,12 @@ const Sidebar: React.FC = () => {
     setSelectedChatroom(chatroomId)
     setIsRealTime(false)
   }
-  const handleDownloadPrivateKey = () => {
-    const blob = new Blob([privateKey], { type: 'text/plain;charset=utf-8' })
-    saveAs(blob, 'private_key.ecpriv')
+
+  const handleDownloadKey = (key: string, filename: string) => {
+    const blob = new Blob([key], { type: 'text/plain;charset=utf-8' })
+    saveAs(blob, filename)
   }
 
-  const handleDownloadPublicKey = () => {
-    const blob = new Blob([publicKey], { type: 'text/plain;charset=utf-8' })
-    saveAs(blob, 'public_key.ecpub')
-  }
   return (
     <div className="w-60 h-full bg-gray-900 text-white flex flex-col">
       {waitingForMatch && <LoadingOverlay />}
@@ -170,9 +176,24 @@ const Sidebar: React.FC = () => {
             marginTop: '10px',
           }}
           fullWidth
-          onClick={handleGenerateKey}
+          onClick={() => handleGenerateKey('E2EE')}
         >
-          Generate Key
+          Generate E2EE Key
+        </Button>
+        <Button
+          variant="contained"
+          sx={{
+            backgroundColor: '#222222',
+            color: '#ffffff',
+            '&:hover': {
+              backgroundColor: '#777777',
+            },
+            marginTop: '10px',
+          }}
+          fullWidth
+          onClick={() => handleGenerateKey('Schnorr')}
+        >
+          Generate Schnorr Key
         </Button>
       </Box>
       <Dialog
@@ -187,12 +208,9 @@ const Sidebar: React.FC = () => {
         <DialogContent dividers>
           <DialogContentText
             id="key-dialog-description"
-            sx={{
-              fontSize: '16px',
-              fontWeight: 'bolder',
-            }}
+            sx={{ fontSize: '16px', fontWeight: 'bolder' }}
           >
-            Private Key
+            {dialogType === 'E2EE' ? 'E2EE Private Key' : 'Schnorr Private Key'}
           </DialogContentText>
           <DialogContentText
             sx={{
@@ -201,15 +219,10 @@ const Sidebar: React.FC = () => {
               fontSize: '12px',
             }}
           >
-            {privateKey}
+            {dialogType === 'E2EE' ? privateE2EEKey : privateSchnorrKey}
           </DialogContentText>
           <DialogContentText
-            id="key-dialog-description"
-            sx={{
-              fontSize: '16px',
-              fontWeight: 'bolder',
-              marginTop: '1rem',
-            }}
+            sx={{ fontSize: '16px', fontWeight: 'bolder', marginTop: '1rem' }}
           >
             Public Key
           </DialogContentText>
@@ -220,14 +233,32 @@ const Sidebar: React.FC = () => {
               fontSize: '12px',
             }}
           >
-            {publicKey}
+            {dialogType === 'E2EE' ? publicE2EEKey : publicSchnorrKey}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDownloadPrivateKey} color="primary">
+          <Button
+            onClick={() =>
+              handleDownloadKey(
+                dialogType === 'E2EE' ? privateE2EEKey : privateSchnorrKey,
+                dialogType === 'E2EE'
+                  ? 'private_key.ecpriv'
+                  : 'private_key.scpriv',
+              )
+            }
+            color="primary"
+          >
             Download Private Key
           </Button>
-          <Button onClick={handleDownloadPublicKey} color="primary">
+          <Button
+            onClick={() =>
+              handleDownloadKey(
+                dialogType === 'E2EE' ? publicE2EEKey : publicSchnorrKey,
+                dialogType === 'E2EE' ? 'public_key.ecpub' : 'public_key.scpub',
+              )
+            }
+            color="primary"
+          >
             Download Public Key
           </Button>
           <Button onClick={handleCloseDialog} color="primary">

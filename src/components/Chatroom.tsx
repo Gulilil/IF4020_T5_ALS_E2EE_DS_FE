@@ -22,7 +22,12 @@ const Chatroom: React.FC = () => {
   const currentUser = localStorage.getItem('id') || 'user1'
 
   const handleSendMessage = () => {
-    if (message.trim() && selectedChatroom !== null && receiverId && isRealTime) {
+    if (
+      message.trim() &&
+      selectedChatroom !== null &&
+      receiverId &&
+      isRealTime
+    ) {
       addRealTimeMessage(selectedChatroom, message, currentUser, receiverId)
       setMessage('')
     }
@@ -100,7 +105,11 @@ const Chatroom: React.FC = () => {
           }}
           disabled={!isRealTime}
         />
-        <IconButton sx={{ color: '#CCCCCC' }} onClick={handleSendMessage} disabled={!isRealTime}>
+        <IconButton
+          sx={{ color: '#CCCCCC' }}
+          onClick={handleSendMessage}
+          disabled={!isRealTime}
+        >
           <SendIcon />
         </IconButton>
       </footer>
@@ -109,4 +118,3 @@ const Chatroom: React.FC = () => {
 }
 
 export default Chatroom
-

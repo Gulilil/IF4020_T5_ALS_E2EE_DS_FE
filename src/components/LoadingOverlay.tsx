@@ -1,8 +1,8 @@
-import React from 'react';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import React from 'react'
+import { Box, CircularProgress, Typography } from '@mui/material'
 
 interface LoadingOverlayProps {
-  className?: string;
+  className?: string
 }
 
 const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ className }) => {
@@ -33,7 +33,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ className }) => {
         Waiting for another user to join...
       </Typography>
     </Box>
-  );
-};
+  )
+}
 
-export default LoadingOverlay;
+export default LoadingOverlay
