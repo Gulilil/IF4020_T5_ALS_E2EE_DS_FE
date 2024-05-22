@@ -79,6 +79,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
               color: '#ffffff',
             },
           }}
+          disabled={!isRealTime}
         />
       }
       label="Sign Message"

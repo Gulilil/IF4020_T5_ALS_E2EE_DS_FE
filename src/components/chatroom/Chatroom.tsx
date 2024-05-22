@@ -3,8 +3,10 @@ import { AppBar, Toolbar, Typography } from '@mui/material'
 import MessageList from './MessageList'
 import MessageInput from './MessageInput'
 import SignatureDialog from './SignatureDialog'
-import useKey from '../../hooks/useKey'
+import SignatureVerificationDialog from './SignatureVerificationDialog'
+import { Message } from '../../dto/socket'
 import { useChat } from '../../context/ChatContext'
+import useKey from '../../hooks/useKey'
 import { generateDigitalSignature } from '../../utils/schnorr'
 
 const Chatroom: React.FC = () => {
@@ -18,10 +20,13 @@ const Chatroom: React.FC = () => {
   const { schnorrParams } = useKey()
   const [message, setMessage] = useState<string>('')
   const [open, setOpen] = useState<boolean>(false)
+  const [verificationOpen, setVerificationOpen] = useState<boolean>(false)
   const [activeStep, setActiveStep] = useState<number>(0)
   const [privateKey, setPrivateKey] = useState<string>('')
+  const [, setPublicKey] = useState<string>('')
   const [keyFile, setKeyFile] = useState<File | null>(null)
   const [isSigning, setIsSigning] = useState<boolean>(false)
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
 
   const currentUser = localStorage.getItem('id') || 'user1'
 
@@ -51,6 +56,13 @@ const Chatroom: React.FC = () => {
     setKeyFile(null)
   }
 
+  const handleVerificationClose = () => {
+    setVerificationOpen(false)
+    setActiveStep(0)
+    setPublicKey('')
+    setKeyFile(null)
+  }
+
   const handleKeySubmit = async () => {
     if (privateKey.trim() && schnorrParams) {
       const signature = await generateDigitalSignature(
@@ -64,6 +76,22 @@ const Chatroom: React.FC = () => {
     } else {
       console.error(
         'Private key is empty or Schnorr parameters are not initialized',
+      )
+    }
+  }
+
+  const handleVerificationSubmit = async (publicKey: string) => {
+    if (selectedMessage && publicKey.trim() && schnorrParams) {
+      // Implement this
+      const isValid = true
+      if (isValid) {
+        alert('Signature is valid')
+      } else {
+        alert('Signature is invalid')
+      }
+    } else {
+      console.error(
+        'Public key is empty or Schnorr parameters are not initialized',
       )
     }
   }
@@ -102,6 +130,11 @@ const Chatroom: React.FC = () => {
     }
   }
 
+  const handleMessageClick = (message: Message) => {
+    setSelectedMessage(message)
+    setVerificationOpen(true)
+  }
+
   if (selectedChatroom === null) {
     return (
       <div className="text-center text-gray-500 flex-1 flex items-center justify-center">
@@ -122,6 +155,7 @@ const Chatroom: React.FC = () => {
       <MessageList
         messages={messages[selectedChatroom] || []}
         currentUser={currentUser}
+        onMessageClick={handleMessageClick}
       />
       <MessageInput
         message={message}
@@ -143,6 +177,11 @@ const Chatroom: React.FC = () => {
         handleFileInput={handleFileInput}
         handleKeySubmit={handleKeySubmit}
         keyFile={keyFile}
+      />
+      <SignatureVerificationDialog
+        open={verificationOpen}
+        handleClose={handleVerificationClose}
+        handleVerify={handleVerificationSubmit}
       />
     </div>
   )

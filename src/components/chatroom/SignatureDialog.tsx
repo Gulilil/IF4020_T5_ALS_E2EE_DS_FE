@@ -55,7 +55,7 @@ const SignatureDialog: React.FC<SignatureDialogProps> = ({
           paddingTop: '16px',
           paddingBottom: '16px',
           '& .MuiStepIcon-root': {
-            color: '#000000', // Set the color of the step icons
+            color: '#000000',
             '&.Mui-active': {
               color: '#000000',
             },
@@ -64,7 +64,7 @@ const SignatureDialog: React.FC<SignatureDialogProps> = ({
             },
           },
           '& .MuiStepLabel-label': {
-            color: '#000000', // Set the color of the step labels
+            color: '#000000',
           },
         }}
       >
