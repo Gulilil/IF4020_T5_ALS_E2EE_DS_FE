@@ -137,25 +137,10 @@ const Sidebar: React.FC = () => {
         <Button
           variant="contained"
           sx={{
-            backgroundColor: '#222222',
+            backgroundColor: '#0a2434',
             color: '#ffffff',
             '&:hover': {
-              backgroundColor: '#333333',
-            },
-          }}
-          fullWidth
-          startIcon={<ExitToAppIcon />}
-          onClick={handleLogout}
-        >
-          Logout
-        </Button>
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: '#a54d06',
-            color: '#ffffff',
-            '&:hover': {
-              backgroundColor: '#777777',
+              backgroundColor: '#1c2b5d',
             },
             marginTop: '10px',
           }}
@@ -171,14 +156,14 @@ const Sidebar: React.FC = () => {
             backgroundColor: '#222222',
             color: '#ffffff',
             '&:hover': {
-              backgroundColor: '#777777',
+              backgroundColor: '#333333',
             },
             marginTop: '10px',
           }}
           fullWidth
           onClick={() => handleGenerateKey('E2EE')}
         >
-          Generate E2EE Key
+          E2EE Key
         </Button>
         <Button
           variant="contained"
@@ -186,14 +171,30 @@ const Sidebar: React.FC = () => {
             backgroundColor: '#222222',
             color: '#ffffff',
             '&:hover': {
-              backgroundColor: '#777777',
+              backgroundColor: '#333333',
             },
             marginTop: '10px',
           }}
           fullWidth
           onClick={() => handleGenerateKey('Schnorr')}
         >
-          Generate Schnorr Key
+          DS KEY
+        </Button>
+        <Button
+          variant="contained"
+          sx={{
+            backgroundColor: '#222222',
+            color: '#ffffff',
+            '&:hover': {
+              backgroundColor: '#333333',
+            },
+            marginTop: '10px',
+          }}
+          fullWidth
+          startIcon={<ExitToAppIcon />}
+          onClick={handleLogout}
+        >
+          Logout
         </Button>
       </Box>
       <Dialog
@@ -246,7 +247,13 @@ const Sidebar: React.FC = () => {
                   : 'private_key.scpriv',
               )
             }
-            color="primary"
+            sx={{
+              backgroundColor: '#222222',
+              color: '#ffffff',
+              '&:hover': {
+                backgroundColor: '#333333',
+              },
+            }}
           >
             Download Private Key
           </Button>
@@ -257,11 +264,23 @@ const Sidebar: React.FC = () => {
                 dialogType === 'E2EE' ? 'public_key.ecpub' : 'public_key.scpub',
               )
             }
-            color="primary"
+            sx={{
+              backgroundColor: '#222222',
+              color: '#ffffff',
+              '&:hover': {
+                backgroundColor: '#333333',
+              },
+            }}
           >
             Download Public Key
           </Button>
-          <Button onClick={handleCloseDialog} color="primary">
+          <Button onClick={handleCloseDialog} sx={{
+              backgroundColor: '#222222',
+              color: '#ffffff',
+              '&:hover': {
+                backgroundColor: '#333333',
+              },
+            }}>
             Close
           </Button>
         </DialogActions>
