@@ -23,6 +23,8 @@ interface ChatContextType {
     message: string,
     user: string,
     receiverId: string,
+    isSigned: boolean,
+    signature?: string
   ) => void
   joinRealTimeQueue: (userId: string) => void
   deleteChatroom: (chatroomId: number) => void
@@ -87,12 +89,16 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     message: string,
     user: string,
     receiverId: string,
+    isSigned: boolean,
+    signature?: string
   ) => {
     const payload: SendMessagePayload = {
       roomId: chatroomId.toString(),
       senderId: user,
       receiverId,
       message,
+      isSigned,
+      signature
     }
     socket.emit('sendRealTimeMessage', payload)
   }

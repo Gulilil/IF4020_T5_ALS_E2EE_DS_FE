@@ -6,6 +6,11 @@ import {
   AppBar,
   Toolbar,
   Typography,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
 import { useChat } from '../context/ChatContext'
@@ -19,6 +24,10 @@ const Chatroom: React.FC = () => {
     isRealTime,
   } = useChat()
   const [message, setMessage] = useState<string>('')
+  const [isSigning, setIsSigning] = useState<boolean>(false)
+  const [open, setOpen] = useState<boolean>(false)
+  const [privateKey, setPrivateKey] = useState<string>('')
+
   const currentUser = localStorage.getItem('id') || 'user1'
 
   const handleSendMessage = () => {
@@ -28,9 +37,26 @@ const Chatroom: React.FC = () => {
       receiverId &&
       isRealTime
     ) {
-      addRealTimeMessage(selectedChatroom, message, currentUser, receiverId)
+      addRealTimeMessage(selectedChatroom, message, currentUser, receiverId, isSigning, "testing")
       setMessage('')
     }
+  }
+
+  const handleSignToggle = () => {
+    setIsSigning(!isSigning)
+    if (!isSigning) {
+      setOpen(true)
+    }
+  }
+
+  const handleClose = () => {
+    setOpen(false)
+  }
+
+  const handleKeySubmit = () => {
+    setOpen(false)
+    // Hash the message to generate a signature
+    // TODO: Make the message clickable and verify the signature
   }
 
   if (selectedChatroom === null) {
@@ -58,7 +84,12 @@ const Chatroom: React.FC = () => {
           >
             <div
               className={`p-2 rounded text-{BDBDBD} w-fit break-words`}
-              style={{ maxWidth: '70%' }}
+              style={{
+                maxWidth: '70%',
+                border: msg.isSigned ? '2px solid #FFD700' : 'none',
+                backgroundColor: msg.isSigned ? '#FFF8DC' : '#262626',
+                color: msg.isSigned ? '#000' : '#BDBDBD',
+              }}
             >
               <div className="font-bold">{msg.senderId}</div>
               <div>{msg.hashedMessage}</div>
@@ -67,7 +98,7 @@ const Chatroom: React.FC = () => {
         ))}
       </Box>
       <footer className="p-4 bg-custom-chatroom shadow flex justify-center">
-        <TextField
+      <TextField
           variant="outlined"
           sx={{
             backgroundColor: '#262626',
@@ -112,7 +143,33 @@ const Chatroom: React.FC = () => {
         >
           <SendIcon />
         </IconButton>
+        <Button onClick={handleSignToggle} color="primary" variant="contained" disabled={!isRealTime}>
+          {isSigning ? 'Cancel Sign' : 'Sign Message'}
+        </Button>
       </footer>
+
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Enter Private Key</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Private Key"
+            type="password"
+            fullWidth
+            value={privateKey}
+            onChange={(e) => setPrivateKey(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleKeySubmit} color="primary">
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   )
 }

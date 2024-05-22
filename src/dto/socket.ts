@@ -7,6 +7,8 @@ export interface SendMessagePayload {
   senderId: string
   receiverId: string
   message: string
+  isSigned: boolean
+  signature?: string
 }
 
 export interface Message {
@@ -16,6 +18,7 @@ export interface Message {
   createdAt: string
   hashedMessage: string
   roomChatId: number
+  isSigned: boolean
 }
 
 export interface Chatroom {
