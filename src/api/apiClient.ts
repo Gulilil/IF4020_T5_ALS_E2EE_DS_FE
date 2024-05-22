@@ -81,7 +81,6 @@ apiClient.interceptors.response.use(
       const textBlocks = makeStringToBlocksArray(encryptedData, false)
       const decryptedBlocks = decryptECB(textBlocks, key)
       const decryptedString = makeBlocksArrayToString(decryptedBlocks)
-      console.log('decrypted', decryptedString)
       response.data = JSON.parse(decryptedString)
       return response
     } catch (error) {

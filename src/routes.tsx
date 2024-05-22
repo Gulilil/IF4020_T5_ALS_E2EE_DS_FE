@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import Home from './components/pages/Home'
 import HomeChat from './components/pages/HomeChat'
 import { ROUTES } from './constants/routes'
-import TestingSocket from './components/pages/TestingSocket'
 import { useCookies } from 'react-cookie'
 import apiClient from './api/apiClient'
 
@@ -50,7 +49,6 @@ const AppRoutes: React.FC = () => {
           const sharedSecret = (clientPrivateKey as EC.KeyPair)
             .derive(serverKey.getPublic())
             .toString(16)
-          console.log('Shared secret:', sharedSecret)
           setCookie('sharedKey', sharedSecret, {
             path: '/',
             maxAge: 3600,
@@ -72,7 +70,6 @@ const AppRoutes: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/socket" element={<TestingSocket />} />
         <Route path={ROUTES.HOME} element={<Home />} />
         <Route path={ROUTES.CHATS} element={<HomeChat />} />
       </Routes>

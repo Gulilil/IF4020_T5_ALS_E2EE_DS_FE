@@ -65,14 +65,14 @@ export const useChatroom = () => {
 
   return {
     chatrooms,
-    setChatrooms,
     selectedChatroom,
-    setSelectedChatroom,
     receiverId,
-    setReceiverId,
-    deleteChatroom,
     loading,
     waitingForMatch,
+    deleteChatroom,
+    setSelectedChatroom,
+    setReceiverId,
+    setChatrooms,
     setWaitingForMatch,
   }
 }

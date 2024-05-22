@@ -57,11 +57,11 @@ const useKey = () => {
   return {
     privateE2EEKey,
     publicE2EEKey,
-    handleGenerateE2EEKey,
     privateSchnorrKey,
     publicSchnorrKey,
-    handleGenerateSchnorrKey,
     schnorrParams,
+    handleGenerateSchnorrKey,
+    handleGenerateE2EEKey,
   }
 }
 
