@@ -1,7 +1,8 @@
 import { ec as EC } from 'elliptic'
 import { useEffect, useState } from 'react'
 import { getSchnorrParameters } from '../api/endpoints/key'
-import { getRandomBigInt, modExp, SchnorrParams } from '../dto/key/schnorr'
+import { SchnorrParams } from '../dto/key/schnorr'
+import { getRandomBigInt, modExp } from '../utils/schnorr'
 
 const useKey = () => {
   const [schnorrParams, setSchnorrParams] = useState<SchnorrParams | null>(null)

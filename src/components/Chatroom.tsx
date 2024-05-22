@@ -14,8 +14,8 @@ import {
 } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
 import { useChat } from '../context/ChatContext'
-import { generateDigitalSignature } from '../dto/key/schnorr'
 import useKey from '../hooks/useKey'
+import { generateDigitalSignature } from '../utils/schnorr'
 
 const Chatroom: React.FC = () => {
   const {
