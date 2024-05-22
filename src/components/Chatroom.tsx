@@ -14,6 +14,8 @@ import {
 } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
 import { useChat } from '../context/ChatContext'
+import { generateDigitalSignature } from '../dto/key/schnorr'
+import useKey from '../hooks/useKey'
 
 const Chatroom: React.FC = () => {
   const {
@@ -23,6 +25,7 @@ const Chatroom: React.FC = () => {
     receiverId,
     isRealTime,
   } = useChat()
+  const { schnorrParams } = useKey()
   const [message, setMessage] = useState<string>('')
   const [isSigning, setIsSigning] = useState<boolean>(false)
   const [open, setOpen] = useState<boolean>(false)
@@ -30,14 +33,21 @@ const Chatroom: React.FC = () => {
 
   const currentUser = localStorage.getItem('id') || 'user1'
 
-  const handleSendMessage = () => {
+  const handleSendMessage = (signature?: string) => {
     if (
       message.trim() &&
       selectedChatroom !== null &&
       receiverId &&
       isRealTime
     ) {
-      addRealTimeMessage(selectedChatroom, message, currentUser, receiverId, isSigning, "testing")
+      addRealTimeMessage(
+        selectedChatroom,
+        message,
+        currentUser,
+        receiverId,
+        isSigning,
+        signature,
+      )
       setMessage('')
     }
   }
@@ -53,10 +63,21 @@ const Chatroom: React.FC = () => {
     setOpen(false)
   }
 
-  const handleKeySubmit = () => {
-    setOpen(false)
-    // Hash the message to generate a signature
-    // TODO: Make the message clickable and verify the signature
+  const handleKeySubmit = async () => {
+    if (privateKey.trim() && schnorrParams) {
+      const signature = await generateDigitalSignature(
+        message,
+        privateKey,
+        schnorrParams,
+      )
+      setPrivateKey('')
+      setOpen(false)
+      handleSendMessage(JSON.stringify(signature))
+    } else {
+      console.error(
+        'Private key is empty or Schnorr parameters are not initialized',
+      )
+    }
   }
 
   if (selectedChatroom === null) {
@@ -98,7 +119,7 @@ const Chatroom: React.FC = () => {
         ))}
       </Box>
       <footer className="p-4 bg-custom-chatroom shadow flex justify-center">
-      <TextField
+        <TextField
           variant="outlined"
           sx={{
             backgroundColor: '#262626',
@@ -138,12 +159,17 @@ const Chatroom: React.FC = () => {
         />
         <IconButton
           sx={{ color: '#CCCCCC' }}
-          onClick={handleSendMessage}
+          onClick={() => handleSendMessage()}
           disabled={!isRealTime}
         >
           <SendIcon />
         </IconButton>
-        <Button onClick={handleSignToggle} color="primary" variant="contained" disabled={!isRealTime}>
+        <Button
+          onClick={handleSignToggle}
+          color="primary"
+          variant="contained"
+          disabled={!isRealTime}
+        >
           {isSigning ? 'Cancel Sign' : 'Sign Message'}
         </Button>
       </footer>

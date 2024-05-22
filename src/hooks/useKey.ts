@@ -1,13 +1,27 @@
 import { ec as EC } from 'elliptic'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getSchnorrParameters } from '../api/endpoints/key'
-import { getRandomBigInt, modExp } from '../dto/key/schnorr'
+import { getRandomBigInt, modExp, SchnorrParams } from '../dto/key/schnorr'
 
 const useKey = () => {
+  const [schnorrParams, setSchnorrParams] = useState<SchnorrParams | null>(null)
   const [privateE2EEKey, setPrivateE2EEKey] = useState<string>('')
   const [publicE2EEKey, setPublicE2EEKey] = useState<string>('')
   const [privateSchnorrKey, setPrivateSchnorrKey] = useState<string>('')
   const [publicSchnorrKey, setPublicSchnorrKey] = useState<string>('')
+
+  useEffect(() => {
+    const fetchSchnorrParams = async () => {
+      try {
+        const response = await getSchnorrParameters()
+        setSchnorrParams(response)
+      } catch (error) {
+        console.error('Error fetching Schnorr parameters:', error)
+      }
+    }
+
+    fetchSchnorrParams()
+  }, [])
 
   const handleGenerateE2EEKey = () => {
     const ec = new EC('secp256k1')
@@ -20,8 +34,11 @@ const useKey = () => {
 
   const handleGenerateSchnorrKey = async () => {
     try {
-      const response = await getSchnorrParameters()
-      const { a, p, q } = response
+      if (!schnorrParams) {
+        throw new Error('Schnorr params is not initialized')
+      }
+
+      const { a, p, q } = schnorrParams
 
       const aNew = BigInt(a)
       const pNew = BigInt(p)
@@ -44,6 +61,7 @@ const useKey = () => {
     privateSchnorrKey,
     publicSchnorrKey,
     handleGenerateSchnorrKey,
+    schnorrParams,
   }
 }
 
