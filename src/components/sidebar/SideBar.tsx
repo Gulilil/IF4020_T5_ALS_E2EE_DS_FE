@@ -29,6 +29,7 @@ const Sidebar: React.FC = () => {
     privateSchnorrKey,
     publicSchnorrKey,
     handleGenerateSchnorrKey,
+    isGeneratingKey,
   } = useKey()
 
   const [openDialog, setOpenDialog] = useState(false)
@@ -162,6 +163,7 @@ const Sidebar: React.FC = () => {
         privateSchnorrKey={privateSchnorrKey}
         publicSchnorrKey={publicSchnorrKey}
         handleDownloadKey={handleDownloadKey}
+        isGeneratingKey={isGeneratingKey}
       />
     </div>
   )

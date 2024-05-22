@@ -2,7 +2,7 @@ import { ec as EC } from 'elliptic'
 import { useEffect, useState } from 'react'
 import { getSchnorrParameters } from '../api/endpoints/key'
 import { SchnorrParams } from '../dto/key/schnorr'
-import { getRandomBigInt, modExp } from '../utils/schnorr'
+import { generateDigitalSignature, getRandomBigInt, modExp, verifyDigitalSignature } from '../utils/schnorr'
 
 const useKey = () => {
   const [schnorrParams, setSchnorrParams] = useState<SchnorrParams | null>(null)
@@ -10,6 +10,7 @@ const useKey = () => {
   const [publicE2EEKey, setPublicE2EEKey] = useState<string>('')
   const [privateSchnorrKey, setPrivateSchnorrKey] = useState<string>('')
   const [publicSchnorrKey, setPublicSchnorrKey] = useState<string>('')
+  const [isGeneratingKey, setIsGeneratingKey] = useState<boolean>(false)
 
   useEffect(() => {
     const fetchSchnorrParams = async () => {
@@ -34,26 +35,56 @@ const useKey = () => {
   }
 
   const handleGenerateSchnorrKey = async () => {
+    setIsGeneratingKey(true)
     try {
       if (!schnorrParams) {
-        throw new Error('Schnorr params is not initialized')
+        throw new Error('Schnorr params are not initialized')
       }
-
+  
       const { a, p, q } = schnorrParams
-
+  
       const aNew = BigInt(a)
       const pNew = BigInt(p)
       const qNew = BigInt(q)
-
-      const x = getRandomBigInt(qNew - 1n) + 1n
-      const y = modExp(aNew, x, pNew)
-
-      setPrivateSchnorrKey(x.toString())
-      setPublicSchnorrKey(y.toString())
+  
+      let retries = 0
+      const maxRetries = 30000
+      let success = false
+  
+      while (retries < maxRetries && !success) {
+        const x = getRandomBigInt(qNew - 1n) + 1n
+        const y = modExp(aNew, x, pNew)
+  
+        const privateKey = x.toString()
+        const publicKey = y.toString()
+  
+        // Test self-verification
+        const testMessage = 'Test message for key verification'
+        const signature = await generateDigitalSignature(testMessage, privateKey, schnorrParams)
+  
+        const isValid = await verifyDigitalSignature(testMessage, JSON.stringify(signature), publicKey, schnorrParams)
+  
+        if (isValid) {
+          setPrivateSchnorrKey(privateKey)
+          setPublicSchnorrKey(publicKey)
+          success = true
+          console.log('Schnorr keys generated and verified successfully')
+        } else {
+          retries++
+          console.log(`Retry ${retries}: Self-verification failed.`)
+        }
+      }
+  
+      if (!success) {
+        console.error('Failed to generate valid Schnorr keys after maximum retries')
+      }
+  
     } catch (error) {
       console.error('Error generating Schnorr keys:', error)
+    } finally {
+      setIsGeneratingKey(false)
     }
-  }
+  } 
 
   return {
     privateE2EEKey,
@@ -63,6 +94,7 @@ const useKey = () => {
     schnorrParams,
     handleGenerateSchnorrKey,
     handleGenerateE2EEKey,
+    isGeneratingKey,
   }
 }
 

@@ -19,6 +19,7 @@ export interface Message {
   hashedMessage: string
   roomChatId: number
   isSigned: boolean
+  signature?: string
 }
 
 export interface Chatroom {

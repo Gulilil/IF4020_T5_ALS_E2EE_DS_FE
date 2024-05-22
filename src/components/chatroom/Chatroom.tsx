@@ -7,7 +7,7 @@ import SignatureVerificationDialog from './SignatureVerificationDialog'
 import { Message } from '../../dto/socket'
 import { useChat } from '../../context/ChatContext'
 import useKey from '../../hooks/useKey'
-import { generateDigitalSignature } from '../../utils/schnorr'
+import { generateDigitalSignature, verifyDigitalSignature } from '../../utils/schnorr'
 
 const Chatroom: React.FC = () => {
   const {
@@ -82,17 +82,19 @@ const Chatroom: React.FC = () => {
 
   const handleVerificationSubmit = async (publicKey: string) => {
     if (selectedMessage && publicKey.trim() && schnorrParams) {
-      // Implement this
-      const isValid = true
+      const isValid = await verifyDigitalSignature(
+        selectedMessage.hashedMessage,
+        selectedMessage.signature,
+        publicKey,
+        schnorrParams,
+      )
       if (isValid) {
         alert('Signature is valid')
       } else {
         alert('Signature is invalid')
       }
     } else {
-      console.error(
-        'Public key is empty or Schnorr parameters are not initialized',
-      )
+      console.error('Public key is empty or Schnorr parameters are not initialized')
     }
   }
 
