@@ -23,9 +23,11 @@ export async function generateDigitalSignature(
   const data = encoder.encode(concatenated)
   const hashBuffer = await crypto.subtle.digest('SHA-256', data)
   const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const e = BigInt(
-    '0x' + hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join('')
-  ) % qBigInt // Ensure e is modulo q
+  const e =
+    BigInt(
+      '0x' +
+        hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join(''),
+    ) % qBigInt // Ensure e is modulo q
 
   // Compute y = (r + se) mod q
   const y = (r + privateKeyBigInt * e) % qBigInt
@@ -64,7 +66,7 @@ export async function verifyDigitalSignature(
   message: string,
   signature?: string,
   publicKey?: string,
-  params?: SchnorrParams
+  params?: SchnorrParams,
 ): Promise<boolean> {
   if (!signature || !publicKey || !params) {
     return false
@@ -95,9 +97,11 @@ export async function verifyDigitalSignature(
   const data = encoder.encode(concatenated)
   const hashBuffer = await crypto.subtle.digest('SHA-256', data)
   const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const ePrime = BigInt(
-    '0x' + hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join('')
-  ) % qBigInt
+  const ePrime =
+    BigInt(
+      '0x' +
+        hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join(''),
+    ) % qBigInt
   console.log('Computed ePrime:', ePrime.toString())
 
   // Compare e' with e

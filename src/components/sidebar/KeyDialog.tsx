@@ -45,7 +45,12 @@ const KeyDialog: React.FC<KeyDialogProps> = ({
       <DialogTitle id="key-dialog-title">Generated Keys</DialogTitle>
       <DialogContent dividers>
         {isGeneratingKey ? (
-          <Box display="flex" justifyContent="center" alignItems="center" height="200px">
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="200px"
+          >
             <CircularProgress />
           </Box>
         ) : (
@@ -54,7 +59,9 @@ const KeyDialog: React.FC<KeyDialogProps> = ({
               id="key-dialog-description"
               sx={{ fontSize: '16px', fontWeight: 'bolder' }}
             >
-              {dialogType === 'E2EE' ? 'E2EE Private Key' : 'Schnorr Private Key'}
+              {dialogType === 'E2EE'
+                ? 'E2EE Private Key'
+                : 'Schnorr Private Key'}
             </DialogContentText>
             <DialogContentText
               sx={{

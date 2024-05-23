@@ -2,7 +2,7 @@ import { ec as EC } from 'elliptic'
 import { useEffect, useState } from 'react'
 import { getSchnorrParameters } from '../api/endpoints/key'
 import { SchnorrParams } from '../dto/key/schnorr'
-import { generateDigitalSignature, getRandomBigInt, modExp, verifyDigitalSignature } from '../utils/schnorr'
+import { getRandomBigInt, modExp } from '../utils/schnorr'
 
 const useKey = () => {
   const [schnorrParams, setSchnorrParams] = useState<SchnorrParams | null>(null)
@@ -40,51 +40,30 @@ const useKey = () => {
       if (!schnorrParams) {
         throw new Error('Schnorr params are not initialized')
       }
-  
+
       const { a, p, q } = schnorrParams
-  
+
       const aNew = BigInt(a)
       const pNew = BigInt(p)
       const qNew = BigInt(q)
-  
-      let retries = 0
-      const maxRetries = 30000
-      let success = false
-  
-      while (retries < maxRetries && !success) {
-        const x = getRandomBigInt(qNew - 1n) + 1n
-        const y = modExp(aNew, x, pNew)
-  
-        const privateKey = x.toString()
-        const publicKey = y.toString()
-  
-        // Test self-verification
-        const testMessage = 'Test message for key verification'
-        const signature = await generateDigitalSignature(testMessage, privateKey, schnorrParams)
-  
-        const isValid = await verifyDigitalSignature(testMessage, JSON.stringify(signature), publicKey, schnorrParams)
-  
-        if (isValid) {
-          setPrivateSchnorrKey(privateKey)
-          setPublicSchnorrKey(publicKey)
-          success = true
-          console.log('Schnorr keys generated and verified successfully')
-        } else {
-          retries++
-          console.log(`Retry ${retries}: Self-verification failed.`)
-        }
-      }
-  
-      if (!success) {
-        console.error('Failed to generate valid Schnorr keys after maximum retries')
-      }
-  
+
+      // Generate a random private key x within the range [1, q-1]
+      const x = getRandomBigInt(qNew - 1n) + 1n
+      // Compute the public key y = g^x mod p
+      const y = modExp(aNew, x, pNew)
+
+      const privateKey = x.toString()
+      const publicKey = y.toString()
+
+      setPrivateSchnorrKey(privateKey)
+      setPublicSchnorrKey(publicKey)
+      console.log('Schnorr keys generated successfully')
     } catch (error) {
       console.error('Error generating Schnorr keys:', error)
     } finally {
       setIsGeneratingKey(false)
     }
-  } 
+  }
 
   return {
     privateE2EEKey,
