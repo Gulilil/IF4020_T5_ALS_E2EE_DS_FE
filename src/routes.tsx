@@ -6,7 +6,7 @@ import { ROUTES } from './constants/routes'
 import { useCookies } from 'react-cookie'
 import apiClient from './api/apiClient'
 import { ECDH } from './class/ECDH'
-import { makeNumToHex } from './utils/functions'
+import { makeHexToNum, makeNumToHex } from './utils/functions'
 import { generatePrimeNumber } from './utils/number'
 import { eccBase } from './type/eccBase'
 import { Point } from './type/point'
@@ -25,16 +25,37 @@ const AppRoutes: React.FC = () => {
       const ecdh = new ECDH();
       let clientPrivateKey : string
       let clientPublicKey : string
+      let basePointVal : string
+      let aVal : number
+      let bVal : number
+      let pVal : number
+
+      // Only use for debugging
+      // localStorage.removeItem('clientPrivateKey')
+      // localStorage.removeItem('clientPublicKey')
+      // localStorage.removeItem('basePointVal')
+      // localStorage.removeItem('aVal')
+      // localStorage.removeItem('bVal')
+      // localStorage.removeItem('pVal')
 
       const storedPrivateKey = localStorage.getItem('clientPrivateKey')
       const storedPublicKey = localStorage.getItem('clientPublicKey')
+      const storedBasePointVal = localStorage.getItem('basePointVal')
+      const storedAVal = localStorage.getItem('aVal')
+      const storedBVal = localStorage.getItem('bVal')
+      const storedPVal = localStorage.getItem('pVal')
 
-      if (storedPrivateKey && storedPublicKey) {
+      if (storedPrivateKey && storedPublicKey && storedBasePointVal) {
         // clientPrivateKey = ec.keyFromPrivate(storedPrivateKey, 'hex')
         // clientPublicKey = clientPrivateKey.getPublic()
 
         clientPrivateKey = storedPrivateKey
         clientPublicKey = storedPublicKey
+        basePointVal = storedBasePointVal
+        aVal = makeHexToNum(storedAVal!)
+        bVal = makeHexToNum(storedBVal!)
+        pVal = makeHexToNum(storedPVal!)
+
       } else {
         // const key = ec.genKeyPair()
         // clientPrivateKey = key.getPrivate()
@@ -42,7 +63,13 @@ const AppRoutes: React.FC = () => {
 
         clientPrivateKey = makeNumToHex(generatePrimeNumber()) 
         const basePoint = ecdh.getRandomPoint()
+        basePointVal = basePoint.getPointValue()
         clientPublicKey = ecdh.multiplyPoint(basePoint, clientPrivateKey).getPointValue()
+
+        const eccData = ecdh.getValue()
+        aVal = eccData.a
+        bVal = eccData.b
+        pVal = eccData.p
 
         localStorage.setItem(
           'clientPrivateKey',
@@ -52,19 +79,38 @@ const AppRoutes: React.FC = () => {
           'clientPublicKey',
           clientPublicKey,
         )
-
+        localStorage.setItem(
+          'basePointVal',
+          basePointVal,
+        )
+        localStorage.setItem(
+          'aVal',
+          makeNumToHex(aVal),
+        )
+        localStorage.setItem(
+          'bVal',
+          makeNumToHex(bVal),
+        )
+        localStorage.setItem(
+          'pVal',
+          makeNumToHex(pVal),
+        )
       }
+
+      ecdh.setValue(aVal, bVal, pVal)
+      const basePoint = new Point(0,0)
+      basePoint.setPointValue(basePointVal)
+      ecdh.setBasePoint(basePoint)
 
       try {
         // Client asks for handshake
-
-        const eccBaseData : eccBase = {a: ecdh.aVal, b: ecdh.bVal, p: ecdh.pVal, pointVal: ecdh.basePoint.getPointValue()}
+        const eccBaseData : eccBase = {a: aVal, b: bVal, p: pVal, pointVal: basePointVal}
         const response = await apiClient.post('/key', {
           // key: clientPublicKey.encode('hex', false),
           key: clientPublicKey,
           eccData : eccBaseData
         })
-
+        
         if (response.status === 200) {
           const publicServerKey = response.data
 
@@ -76,8 +122,10 @@ const AppRoutes: React.FC = () => {
           const publicServerKeyPoint = new Point(0,0)
           publicServerKeyPoint.setPointValue(publicServerKey)
 
+
           const sharedSecretKeyPoint = ecdh.multiplyPoint(publicServerKeyPoint, clientPrivateKey)
           const sharedSecretKey = sharedSecretKeyPoint.getPointValue()
+          console.log("Shared key", sharedSecretKey)
           setCookie('sharedKey', sharedSecretKey, {
             path: '/',
             maxAge: 3600,

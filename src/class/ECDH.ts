@@ -1,3 +1,4 @@
+import { eccBase } from "../type/eccBase";
 import { Point } from "../type/point";
 import { calculateGradient, calculateGradientHomogenous, makeHexToNum, positiveModulo } from "../utils/functions";
 import { generatePrimeNumber } from "../utils/number";
@@ -53,6 +54,12 @@ export class ECDH {
     this.aVal = a;
     this.bVal = b;
     this.pVal = p;
+    this.calculatePoints()
+  }
+
+  public getValue = () => {
+    const data : eccBase = {a: this.aVal, b: this.bVal, p: this.pVal, pointVal: this.basePoint.getPointValue()}
+    return data
   }
 
   public setBasePoint = (p: Point) => {
@@ -150,7 +157,8 @@ export class ECDH {
 
   public getRandomPoint = () => {
     this.basePoint = this.points[Math.floor(Math.random() * this.points.length)]
-    return this.basePoint
+    const temp = new Point(this.basePoint.x, this.basePoint.y)
+    return temp
   }
 
   public searchPoint = (p : Point) : Point | null => {
