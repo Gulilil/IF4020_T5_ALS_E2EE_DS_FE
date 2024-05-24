@@ -1,4 +1,3 @@
-import { ec as EC } from 'elliptic'
 import React, { useEffect, useRef } from 'react'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import Home from './components/pages/Home'
@@ -10,6 +9,9 @@ import { ECDH } from './class/ECDH'
 import { makeNumToHex } from './utils/functions'
 import { generatePrimeNumber } from './utils/number'
 import { eccBase } from './type/eccBase'
+import { Point } from './type/point'
+// import { ec as EC } from 'elliptic'
+
 
 const AppRoutes: React.FC = () => {
   const [, setCookie] = useCookies(['sharedKey'])
@@ -55,23 +57,28 @@ const AppRoutes: React.FC = () => {
 
       try {
         // Client asks for handshake
-        
-        const eccBaseData : eccBase = {a: ecdh.aVal, b: ecdh.bVal, p: ecdh.pVal, pointVal: baseP}
+
+        const eccBaseData : eccBase = {a: ecdh.aVal, b: ecdh.bVal, p: ecdh.pVal, pointVal: ecdh.basePoint.getPointValue()}
         const response = await apiClient.post('/key', {
           // key: clientPublicKey.encode('hex', false),
-          key: clientPublicKey
+          key: clientPublicKey,
+          eccData : eccBaseData
         })
 
         if (response.status === 200) {
           const publicServerKey = response.data
-          // const serverKey = ec.keyFromPublic(publicServerKey, 'hex')
-          const serverKey = publicServerKey
 
+          // const serverKey = ec.keyFromPublic(publicServerKey, 'hex')
           // const sharedSecret = (clientPrivateKey as EC.KeyPair)
           //   .derive(serverKey.getPublic())
           //   .toString(16)
-          const sharedSecretKey = ecdh.multiplyPoint()
-          setCookie('sharedKey', sharedSecret, {
+
+          const publicServerKeyPoint = new Point(0,0)
+          publicServerKeyPoint.setPointValue(publicServerKey)
+
+          const sharedSecretKeyPoint = ecdh.multiplyPoint(publicServerKeyPoint, clientPrivateKey)
+          const sharedSecretKey = sharedSecretKeyPoint.getPointValue()
+          setCookie('sharedKey', sharedSecretKey, {
             path: '/',
             maxAge: 3600,
             secure: true,
