@@ -11,6 +11,7 @@ import {
   generateDigitalSignature,
   verifyDigitalSignature,
 } from '../../utils/schnorr'
+import E2EEDialog from './E2EEDialog'
 
 const Chatroom: React.FC = () => {
   const {
@@ -23,10 +24,13 @@ const Chatroom: React.FC = () => {
   const { schnorrParams } = useKey()
   const [message, setMessage] = useState<string>('')
   const [open, setOpen] = useState<boolean>(false)
+  const [openE2eeDialog, setOpenE2eeDialog] = useState<boolean>(true)
   const [verificationOpen, setVerificationOpen] = useState<boolean>(false)
   const [activeStep, setActiveStep] = useState<number>(0)
   const [privateKey, setPrivateKey] = useState<string>('')
   const [, setPublicKey] = useState<string>('')
+  const [senderPrivateKey, setSenderPrivateKey] = useState<string>('')
+  const [receiverPublicKey, setReceiverPublicKey] = useState<string>('')
   const [keyFile, setKeyFile] = useState<File | null>(null)
   const [isSigning, setIsSigning] = useState<boolean>(false)
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
@@ -47,11 +51,17 @@ const Chatroom: React.FC = () => {
         receiverId,
         !!signature,
         signature,
+        receiverPublicKey,
       )
       setMessage('')
     }
   }
-
+  const handleCloseE2ee = () => {
+    setOpenE2eeDialog(false)
+    setActiveStep(0)
+    setReceiverPublicKey('')
+    setKeyFile(null)
+  }
   const handleClose = () => {
     setOpen(false)
     setActiveStep(0)
@@ -64,6 +74,11 @@ const Chatroom: React.FC = () => {
     setActiveStep(0)
     setPublicKey('')
     setKeyFile(null)
+  }
+
+  const hanldeKeyE2eeSubmit = () => {
+    console.log(receiverPublicKey)
+    setOpenE2eeDialog(false)
   }
 
   const handleKeySubmit = async () => {
@@ -100,6 +115,20 @@ const Chatroom: React.FC = () => {
       console.error(
         'Public key is empty or Schnorr parameters are not initialized',
       )
+    }
+  }
+
+  const handleFileInputE2ee = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const fileReader = new FileReader()
+      fileReader.onload = (event) => {
+        const content = event.target?.result as string
+        activeStep === 0
+          ? setSenderPrivateKey(content)
+          : setReceiverPublicKey(content)
+      }
+      fileReader.readAsText(e.target.files[0])
+      setKeyFile(e.target.files[0])
     }
   }
 
@@ -163,6 +192,7 @@ const Chatroom: React.FC = () => {
         messages={messages[selectedChatroom] || []}
         currentUser={currentUser}
         onMessageClick={handleMessageClick}
+        publicKey={receiverPublicKey}
       />
       <MessageInput
         message={message}
@@ -189,6 +219,20 @@ const Chatroom: React.FC = () => {
         open={verificationOpen}
         handleClose={handleVerificationClose}
         handleVerify={handleVerificationSubmit}
+      />
+      <E2EEDialog
+        open={openE2eeDialog}
+        activeStep={activeStep}
+        handleClose={handleCloseE2ee}
+        handleNext={handleNext}
+        handleBack={handleBack}
+        e2eePrivateKey={senderPrivateKey}
+        e2eePublicKey={receiverPublicKey}
+        setE2eePrivateKey={setSenderPrivateKey}
+        setE2eePublicKey={setReceiverPublicKey}
+        handleFileInput={handleFileInputE2ee}
+        handleKeySubmit={hanldeKeyE2eeSubmit}
+        keyFile={keyFile}
       />
     </div>
   )
