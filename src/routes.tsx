@@ -6,6 +6,10 @@ import HomeChat from './components/pages/HomeChat'
 import { ROUTES } from './constants/routes'
 import { useCookies } from 'react-cookie'
 import apiClient from './api/apiClient'
+import { ECDH } from './class/ECDH'
+import { makeNumToHex } from './utils/functions'
+import { generatePrimeNumber } from './utils/number'
+import { eccBase } from './type/eccBase'
 
 const AppRoutes: React.FC = () => {
   const [, setCookie] = useCookies(['sharedKey'])
@@ -13,42 +17,60 @@ const AppRoutes: React.FC = () => {
 
   useEffect(() => {
     const generateKey = async () => {
-      const ec = new EC('secp256k1')
-      let clientPrivateKey
-      let clientPublicKey
+
+      // ECDH Key Generator
+      // const ec = new EC('secp256k1')
+      const ecdh = new ECDH();
+      let clientPrivateKey : string
+      let clientPublicKey : string
 
       const storedPrivateKey = localStorage.getItem('clientPrivateKey')
       const storedPublicKey = localStorage.getItem('clientPublicKey')
 
       if (storedPrivateKey && storedPublicKey) {
-        clientPrivateKey = ec.keyFromPrivate(storedPrivateKey, 'hex')
-        clientPublicKey = clientPrivateKey.getPublic()
+        // clientPrivateKey = ec.keyFromPrivate(storedPrivateKey, 'hex')
+        // clientPublicKey = clientPrivateKey.getPublic()
+
+        clientPrivateKey = storedPrivateKey
+        clientPublicKey = storedPublicKey
       } else {
-        const key = ec.genKeyPair()
-        clientPrivateKey = key.getPrivate()
-        clientPublicKey = key.getPublic()
+        // const key = ec.genKeyPair()
+        // clientPrivateKey = key.getPrivate()
+        // clientPublicKey = key.getPublic()
+
+        clientPrivateKey = makeNumToHex(generatePrimeNumber()) 
+        const basePoint = ecdh.getRandomPoint()
+        clientPublicKey = ecdh.multiplyPoint(basePoint, clientPrivateKey).getPointValue()
 
         localStorage.setItem(
           'clientPrivateKey',
-          clientPrivateKey.toString('hex'),
+          clientPrivateKey
         )
         localStorage.setItem(
           'clientPublicKey',
-          clientPublicKey.encode('hex', false),
+          clientPublicKey,
         )
+
       }
 
       try {
+        // Client asks for handshake
+        
+        const eccBaseData : eccBase = {a: ecdh.aVal, b: ecdh.bVal, p: ecdh.pVal, pointVal: baseP}
         const response = await apiClient.post('/key', {
-          key: clientPublicKey.encode('hex', false),
+          // key: clientPublicKey.encode('hex', false),
+          key: clientPublicKey
         })
 
         if (response.status === 200) {
           const publicServerKey = response.data
-          const serverKey = ec.keyFromPublic(publicServerKey, 'hex')
-          const sharedSecret = (clientPrivateKey as EC.KeyPair)
-            .derive(serverKey.getPublic())
-            .toString(16)
+          // const serverKey = ec.keyFromPublic(publicServerKey, 'hex')
+          const serverKey = publicServerKey
+
+          // const sharedSecret = (clientPrivateKey as EC.KeyPair)
+          //   .derive(serverKey.getPublic())
+          //   .toString(16)
+          const sharedSecretKey = ecdh.multiplyPoint()
           setCookie('sharedKey', sharedSecret, {
             path: '/',
             maxAge: 3600,

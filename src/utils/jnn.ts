@@ -105,13 +105,10 @@ export class JNN {
 
   substitutePlainText = (input: string) => {
     let result = ''
-    console.log('Ini input', input)
     const smallerBlocks = splitBlock(8, input)
     for (let i = 0; i < smallerBlocks.length; i++) {
       const currentBlock = smallerBlocks[i]
-      console.log('Ini currentblock', currentBlock)
       const index = parseInt(currentBlock, 2)
-      console.log('Ini index', index)
       result += S_BOX[index].toString(2).padStart(8, '0')
     }
     return result

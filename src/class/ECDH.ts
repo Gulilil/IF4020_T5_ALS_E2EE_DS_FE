@@ -1,5 +1,5 @@
 import { Point } from "../type/point";
-import { calculateGradient, calculateGradientHomogenous, positiveModulo } from "../utils/functions";
+import { calculateGradient, calculateGradientHomogenous, makeHexToNum, positiveModulo } from "../utils/functions";
 import { generatePrimeNumber } from "../utils/number";
 
 const INFINITY_POINT = new Point(Infinity, Infinity)
@@ -14,12 +14,19 @@ export class ECDH {
   public bVal : number
   public pVal : number
   public points : Array<Point>
+  public basePoint : Point
 
   // The equation will always be y^2 = (x^3 + ax + b) mod p
   constructor() {
     this.aVal = generatePrimeNumber();
     this.bVal = generatePrimeNumber();
     this.pVal = generatePrimeNumber();
+    this.points = []
+    this.basePoint = new Point(0,0)
+    this.calculatePoints();
+  }
+
+  public calculatePoints = () => {
     this.points = []
 
     // Check the requirements
@@ -41,10 +48,15 @@ export class ECDH {
     }
   }
 
+
   public setValue = (a: number, b: number, p : number) => {
     this.aVal = a;
     this.bVal = b;
     this.pVal = p;
+  }
+
+  public setBasePoint = (p: Point) => {
+    this.basePoint = p;
   }
 
   public calculateY = (x: number) : number => {
@@ -92,7 +104,12 @@ export class ECDH {
     return new Point(x, y)
   }
 
-  public multiplyPoint = (p : Point, n : number) : Point => {
+  public multiplyPoint = (p : Point, n : number | string) : Point => {
+
+    // n can be number or hexadecimal
+    if (typeof n === 'string') {
+      n = makeHexToNum(n);
+    }
 
     // Construct dictionary
     const multiplicationDict = Array<IncrementingPoint>()
@@ -132,7 +149,8 @@ export class ECDH {
   }
 
   public getRandomPoint = () => {
-    return Math.floor(Math.random() * this.points.length)
+    this.basePoint = this.points[Math.floor(Math.random() * this.points.length)]
+    return this.basePoint
   }
 
   public searchPoint = (p : Point) : Point | null => {
