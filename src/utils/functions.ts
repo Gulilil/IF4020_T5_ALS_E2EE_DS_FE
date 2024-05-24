@@ -22,18 +22,6 @@ export const calculateGradientHomogenous = (p: Point, aVal : number, pVal: numbe
   }
 }
 
-export const operatorXOR = (block1: string, block2: string): string => {
-  // Assume block1.length = block2.length
-  let resBlock = "";
-  for (let i = 0; i < block1.length; i++) {
-    const charBinary1 = parseInt(block1[i]);
-    const charBinary2 = parseInt(block2[i]);
-    const resChar = (charBinary1 ^ charBinary2).toString();
-    resBlock += resChar;
-  }
-  return resBlock;
-};
-
 export const isSquare = (n: number) => {
   return (Math.sqrt(n) % 1) === 0;
 }
