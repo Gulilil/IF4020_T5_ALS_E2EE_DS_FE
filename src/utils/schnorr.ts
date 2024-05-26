@@ -1,4 +1,5 @@
 import { SchnorrParams } from '../dto/key/schnorr'
+import { Keccak } from './keccak'
 
 export async function generateDigitalSignature(
   message: string,
@@ -17,17 +18,9 @@ export async function generateDigitalSignature(
   // Compute x = α^r mod p
   const x = modExp(aBigInt, r, pBigInt)
 
-  // Concatenate the message with x and compute the hash e using Web Crypto API
   const concatenated = message + x.toString()
-  const encoder = new TextEncoder()
-  const data = encoder.encode(concatenated)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const e =
-    BigInt(
-      '0x' +
-        hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join(''),
-    ) % qBigInt // Ensure e is modulo q
+  const eHash = Keccak.hash(concatenated)
+  const e = BigInt('0x' + eHash) % qBigInt
 
   // Compute y = (r + se) mod q
   const y = (r + privateKeyBigInt * e) % qBigInt
@@ -91,20 +84,11 @@ export async function verifyDigitalSignature(
   const xPrime = (x1 * x2) % pBigInt
   console.log('Computed xPrime:', xPrime.toString())
 
-  // Concatenate the message with x' and compute the hash e' using Web Crypto API
   const concatenated = message + xPrime.toString()
-  const encoder = new TextEncoder()
-  const data = encoder.encode(concatenated)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const ePrime =
-    BigInt(
-      '0x' +
-        hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join(''),
-    ) % qBigInt
+  const ePrimeHash = Keccak.hash(concatenated)
+  const ePrime = BigInt('0x' + ePrimeHash) % qBigInt
   console.log('Computed ePrime:', ePrime.toString())
 
-  // Compare e' with e
   const isValid = ePrime === eBigInt
   console.log('Is valid:', isValid)
   return isValid
