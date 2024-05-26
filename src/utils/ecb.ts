@@ -21,12 +21,12 @@ export const decryptECB = (
   key: string,
 ): Array<string> => {
   const res: Array<string> = []
-  // const jnn = new JNN()
   console.log(res)
+  // const jnn = new JNN()
   for (let i = 0; i < arrBlocks.length; i++) {
     const currentBlock = arrBlocks[i]
     // const decryptedBlock = jnn.decrypt(currentBlock, key)
-    const decryptedBlock = operatorXOR(currentBlock, key);
+    const decryptedBlock = operatorXOR(currentBlock, key)
     res.push(decryptedBlock)
   }
 

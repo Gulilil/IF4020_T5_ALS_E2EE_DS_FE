@@ -2,8 +2,8 @@
 const UPPER_THRESHOLD = 5000000
 const LOWER_THRESHOLD = 2500000
 
-const UPPER_SMALLER_THRESHOLD = 300000
-const LOWER_SMALLER_THRESHOLD = 100000
+const UPPER_SMALLER_THRESHOLD = 10000
+const LOWER_SMALLER_THRESHOLD = 5000
 
 export const getRandomNumber = (max : number) => {
   return Math.floor( Math.random() * max)

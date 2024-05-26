@@ -1,12 +1,15 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Box } from '@mui/material'
 import { Message } from '../../dto/socket'
-import { adjustText, makeBlocksArrayToString, makeStringToBlocksArray } from '../../utils/process'
+import {
+  adjustText,
+  makeBlocksArrayToString,
+  makeStringToBlocksArray,
+} from '../../utils/process'
 import { ECEG } from '../../class/ECEG'
 import { ECEG_A, ECEG_B, ECEG_P, ECEG_X, ECEG_Y } from '../../utils/ECEGData'
 import { Point } from '../../type/point'
 import { decryptECB } from '../../utils/ecb'
-
 
 interface MessageListProps {
   messages: Message[]
@@ -21,19 +24,32 @@ const MessageList: React.FC<MessageListProps> = ({
   onMessageClick,
   privateKey,
 }) => {
-  const decryptOwnMessage = (message: string) => {
-    // // const data = decryptECB(makeStringToBlocksArray(message, false), publicKey)
-    // const adjustMessage = adjustText(message)
-    // // Kalau dia dikiirm sama diri sendiri, tinggal decrypt aja pake fungsi yg sama (symmetrical)
-    // const result = decryptECB(
-    //   makeStringToBlocksArray(adjustMessage, false),
-    //   publicKey,
-    // )
-    // return makeBlocksArrayToString(result)
-    return message
+  const [decryptedMessages, setDecryptedMessages] = useState<string[]>([])
+
+  const alreadyinList = (str: string, strArr : Array<string>) => {
+    for( let i = 0; i < strArr.length; i++){
+      if (strArr[i] == str){
+        return true
+      }
+    }
+    return false
   }
 
-  const decryptIncomingMessage = (hashedMessage : string, ecegVal : string) => {
+  useEffect(() => {
+    messages.map((message) => {
+      if (message.senderId !== currentUser) {
+        const realMessage = decryptIncomingMessage(
+          message.hashedMessage,
+          message.ecegVal,
+        )
+        if (!alreadyinList(realMessage, decryptedMessages)){
+          setDecryptedMessages((prevMessages) => [...prevMessages, realMessage])
+        }
+      }
+    })
+  }, [messages])
+
+  const decryptIncomingMessage = (hashedMessage: string, ecegVal: string) => {
     const adjustedMessage = adjustText(hashedMessage)
 
     // Decrypt ECEG
@@ -53,11 +69,18 @@ const MessageList: React.FC<MessageListProps> = ({
     const key = makeStringToBlocksArray(directKey, true)
     const decryptedData = decryptECB(
       makeStringToBlocksArray(adjustedMessage, false),
-      key[0]
+      key[0],
     )
     const data = makeBlocksArrayToString(decryptedData)
 
     return data
+  }
+
+  let messageIdx = 0;
+  const handleDecryptedMessage = () => {
+    const currIdx = messageIdx
+    messageIdx += 1
+    return decryptedMessages[currIdx]
   }
 
   return (
@@ -81,13 +104,12 @@ const MessageList: React.FC<MessageListProps> = ({
             <div className="font-bold">{msg.senderId}</div>
             <div>
               {msg.senderId === currentUser
-                ? decryptOwnMessage(msg.hashedMessage)
-                : decryptIncomingMessage(msg.hashedMessage, msg.ecegVal)}
+                ? msg.hashedMessage
+                : handleDecryptedMessage()}
 
-              {msg.senderId === currentUser && 
-              <div className='mt-2 font-bold'>
-                {`[=ENCRYPTED=]`}
-              </div>}
+              {msg.senderId === currentUser && (
+                <div className="mt-2 font-bold">{`[=ENCRYPTED=]`}</div>
+              )}
             </div>
           </div>
         </div>
