@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { AppBar, Toolbar, Typography } from '@mui/material'
-import MessageList from './MessageList'
+import MessageList, { decryptIncomingMessage } from './MessageList'
 import MessageInput from './MessageInput'
 import SignatureDialog from './SignatureDialog'
 import SignatureVerificationDialog from './SignatureVerificationDialog'
@@ -102,7 +102,7 @@ const Chatroom: React.FC = () => {
   const handleVerificationSubmit = async (publicKey: string) => {
     if (selectedMessage && publicKey.trim() && schnorrParams) {
       const isValid = await verifyDigitalSignature(
-        selectedMessage.hashedMessage,
+        decryptIncomingMessage(senderPrivateKey, selectedMessage.hashedMessage, selectedMessage.ecegVal).trim(),
         selectedMessage.signature,
         publicKey,
         schnorrParams,

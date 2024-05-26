@@ -39,6 +39,7 @@ const MessageList: React.FC<MessageListProps> = ({
     messages.map((message) => {
       if (message.senderId !== currentUser) {
         const realMessage = decryptIncomingMessage(
+          privateKey,
           message.hashedMessage,
           message.ecegVal,
         )
@@ -48,33 +49,6 @@ const MessageList: React.FC<MessageListProps> = ({
       }
     })
   }, [messages])
-
-  const decryptIncomingMessage = (hashedMessage: string, ecegVal: string) => {
-    const adjustedMessage = adjustText(hashedMessage)
-
-    // Decrypt ECEG
-    const eceg = new ECEG()
-    // Set pre-determined for a, b, p, and basepoint
-    eceg.setValue(ECEG_A, ECEG_B, ECEG_P)
-    const basePoint = new Point(ECEG_X, ECEG_Y)
-    eceg.setBasePoint(basePoint)
-
-    const pairPointVal = eceg.makeStringToPairPointValue(ecegVal)
-    const pairPoint = eceg.getPointFromPairPointValue(pairPointVal)
-
-    const secretPoint = eceg.decryptECEG(privateKey, pairPoint)
-    const directKey = secretPoint.getPointValue()
-
-    // Decrypt ECB
-    const key = makeStringToBlocksArray(directKey, true)
-    const decryptedData = decryptECB(
-      makeStringToBlocksArray(adjustedMessage, false),
-      key[0],
-    )
-    const data = makeBlocksArrayToString(decryptedData)
-
-    return data
-  }
 
   let messageIdx = 0;
   const handleDecryptedMessage = () => {
@@ -116,6 +90,33 @@ const MessageList: React.FC<MessageListProps> = ({
       ))}
     </Box>
   )
+}
+
+export const decryptIncomingMessage = (privateKey: string, hashedMessage: string, ecegVal: string) => {
+  const adjustedMessage = adjustText(hashedMessage)
+
+  // Decrypt ECEG
+  const eceg = new ECEG()
+  // Set pre-determined for a, b, p, and basepoint
+  eceg.setValue(ECEG_A, ECEG_B, ECEG_P)
+  const basePoint = new Point(ECEG_X, ECEG_Y)
+  eceg.setBasePoint(basePoint)
+
+  const pairPointVal = eceg.makeStringToPairPointValue(ecegVal)
+  const pairPoint = eceg.getPointFromPairPointValue(pairPointVal)
+
+  const secretPoint = eceg.decryptECEG(privateKey, pairPoint)
+  const directKey = secretPoint.getPointValue()
+
+  // Decrypt ECB
+  const key = makeStringToBlocksArray(directKey, true)
+  const decryptedData = decryptECB(
+    makeStringToBlocksArray(adjustedMessage, false),
+    key[0],
+  )
+  const data = makeBlocksArrayToString(decryptedData)
+
+  return data
 }
 
 export default MessageList
