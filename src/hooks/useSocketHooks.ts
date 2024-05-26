@@ -6,7 +6,7 @@ import {
   makeBlocksArrayToString,
   makeStringToBlocksArray,
 } from '../utils/process'
-import { encryptECB } from '../utils/ecb'
+import { decryptECB, encryptECB } from '../utils/ecb'
 
 export const useJoinRoom = (selectedChatroom: number | null) => {
   const [messages, setMessages] = useState<{ [key: number]: Message[] }>({})
@@ -79,11 +79,17 @@ export const useSendMessage = () => {
   ) => {
     const messageAdjusted = adjustText(message)
     const key = makeStringToBlocksArray(publicKey!, true)
+    console.log("TEXT ADJUSTED", messageAdjusted)
     const encryptedData = encryptECB(
       makeStringToBlocksArray(messageAdjusted, false),
       key[0],
     )
     const data = makeBlocksArrayToString(encryptedData)
+    const decryptedData = decryptECB(
+      makeStringToBlocksArray(data, false),
+      key[0]
+    )
+    console.log("DECRYPTED", makeBlocksArrayToString(decryptedData))
     const payload: SendMessagePayload = {
       roomId: chatroomId.toString(),
       senderId: user,

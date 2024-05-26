@@ -7,14 +7,15 @@ export const encryptECB = (
 ): Array<string> => {
   const res: Array<string> = []
   // const jnn = new JNN()
-  console.log(res)
+  console.log("Input", arrBlocks)
   for (let i = 0; i < arrBlocks.length; i++) {
     const currentBlock = arrBlocks[i]
     // const encryptedBlock = jnn.encrypt(currentBlock, key)
     const encryptedBlock = operatorXOR(currentBlock, key)
     res.push(encryptedBlock)
   }
-
+  console.log("Key", key)
+  console.log("Encrypted", res)
   return res
 }
 
@@ -24,7 +25,7 @@ export const decryptECB = (
 ): Array<string> => {
   const res: Array<string> = []
   // const jnn = new JNN()
-
+  console.log(res)
   for (let i = 0; i < arrBlocks.length; i++) {
     const currentBlock = arrBlocks[i]
     // const decryptedBlock = jnn.decrypt(currentBlock, key)

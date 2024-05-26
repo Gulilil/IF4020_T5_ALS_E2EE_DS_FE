@@ -44,6 +44,7 @@ const Chatroom: React.FC = () => {
       receiverId &&
       isRealTime
     ) {
+      console.log("send")
       addRealTimeMessage(
         selectedChatroom,
         message,

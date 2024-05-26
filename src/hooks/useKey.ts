@@ -1,8 +1,12 @@
-import { ec as EC } from 'elliptic'
 import { useEffect, useState } from 'react'
 import { getSchnorrParameters } from '../api/endpoints/key'
 import { SchnorrParams } from '../dto/key/schnorr'
 import { getRandomBigInt, modExp } from '../utils/schnorr'
+import { ECDH } from '../class/ECDH'
+import { Point } from '../type/point'
+import { makeNumToHex } from '../utils/functions'
+import { generatePrimeNumber } from '../utils/number'
+import { ECEG_A, ECEG_B, ECEG_P, ECEG_X, ECEG_Y } from '../utils/ECEGData'
 
 const useKey = () => {
   const [schnorrParams, setSchnorrParams] = useState<SchnorrParams | null>(null)
@@ -26,12 +30,16 @@ const useKey = () => {
   }, [])
 
   const handleGenerateE2EEKey = () => {
-    const ec = new EC('secp256k1')
-    const key = ec.genKeyPair()
-    const privateKey = key.getPrivate()
-    const publicKey = key.getPublic()
-    setPrivateE2EEKey(privateKey.toString('hex'))
-    setPublicE2EEKey(publicKey.encode('hex', false))
+    const ecdh = new ECDH()
+
+    // Set pre-determined for a, b, p, and basepoint
+    ecdh.setValue(ECEG_A, ECEG_B, ECEG_P)
+    const basePoint = new Point(ECEG_X, ECEG_Y)
+
+    const privateKey = makeNumToHex(generatePrimeNumber());
+    const publicKey = ecdh.multiplyPoint(basePoint, privateKey).getPointValue()
+    setPrivateE2EEKey(privateKey)
+    setPublicE2EEKey(publicKey)
   }
 
   const handleGenerateSchnorrKey = async () => {
