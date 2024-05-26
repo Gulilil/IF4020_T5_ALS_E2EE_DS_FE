@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react'
 import { getSchnorrParameters } from '../api/endpoints/key'
 import { SchnorrParams } from '../dto/key/schnorr'
 import { getRandomBigInt, modExp } from '../utils/schnorr'
-import { ECDH } from '../class/ECDH'
 import { Point } from '../type/point'
 import { makeNumToHex } from '../utils/functions'
 import { generatePrimeNumber } from '../utils/number'
 import { ECEG_A, ECEG_B, ECEG_P, ECEG_X, ECEG_Y } from '../utils/ECEGData'
+import { ECEG } from '../class/ECEG'
 
 const useKey = () => {
   const [schnorrParams, setSchnorrParams] = useState<SchnorrParams | null>(null)
@@ -30,14 +30,14 @@ const useKey = () => {
   }, [])
 
   const handleGenerateE2EEKey = () => {
-    const ecdh = new ECDH()
-
+    const eceg = new ECEG()
     // Set pre-determined for a, b, p, and basepoint
-    ecdh.setValue(ECEG_A, ECEG_B, ECEG_P)
+    eceg.setValue(ECEG_A, ECEG_B, ECEG_P)
     const basePoint = new Point(ECEG_X, ECEG_Y)
+    eceg.setBasePoint(basePoint)
 
     const privateKey = makeNumToHex(generatePrimeNumber());
-    const publicKey = ecdh.multiplyPoint(basePoint, privateKey).getPointValue()
+    const publicKey = eceg.multiplyPoint(basePoint, privateKey).getPointValue()
     setPrivateE2EEKey(privateKey)
     setPublicE2EEKey(publicKey)
   }

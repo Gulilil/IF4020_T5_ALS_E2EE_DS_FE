@@ -6,7 +6,10 @@ import {
   makeBlocksArrayToString,
   makeStringToBlocksArray,
 } from '../utils/process'
-import { decryptECB, encryptECB } from '../utils/ecb'
+import { encryptECB } from '../utils/ecb'
+import { ECEG } from '../class/ECEG'
+import { ECEG_A, ECEG_B, ECEG_P, ECEG_X, ECEG_Y } from '../utils/ECEGData'
+import { Point } from '../type/point'
 
 export const useJoinRoom = (selectedChatroom: number | null) => {
   const [messages, setMessages] = useState<{ [key: number]: Message[] }>({})
@@ -78,18 +81,30 @@ export const useSendMessage = () => {
     publicKey?: string,
   ) => {
     const messageAdjusted = adjustText(message)
-    const key = makeStringToBlocksArray(publicKey!, true)
-    console.log("TEXT ADJUSTED", messageAdjusted)
+    const eceg = new ECEG()
+    // Set pre-determined for a, b, p, and basepoint
+    eceg.setValue(ECEG_A, ECEG_B, ECEG_P)
+    const basePoint = new Point(ECEG_X, ECEG_Y)
+    eceg.setBasePoint(basePoint)
+    const secretPoint = eceg.getRandomPoint()
+    const directKey = secretPoint.getPointValue()
+    const k = eceg.getKValue()
+
+    const key = makeStringToBlocksArray(directKey, true)
     const encryptedData = encryptECB(
       makeStringToBlocksArray(messageAdjusted, false),
       key[0],
     )
     const data = makeBlocksArrayToString(encryptedData)
-    const decryptedData = decryptECB(
-      makeStringToBlocksArray(data, false),
-      key[0]
-    )
-    console.log("DECRYPTED", makeBlocksArrayToString(decryptedData))
+
+    const publicKeyPoint = new Point(0,0)
+    publicKeyPoint.setPointValue(publicKey!)
+    const pairPoint = eceg.encryptECEG(k, basePoint, secretPoint, publicKeyPoint)
+    const pairPointVal = eceg.getValueFromPairPoint(pairPoint)
+    const ecegVal = eceg.makePairPointValueToString(pairPointVal)
+
+    console.log(ecegVal)
+
     const payload: SendMessagePayload = {
       roomId: chatroomId.toString(),
       senderId: user,
@@ -97,6 +112,7 @@ export const useSendMessage = () => {
       message: data,
       isSigned,
       signature,
+      ecegVal
     }
     socket.emit('sendRealTimeMessage', payload)
   }
