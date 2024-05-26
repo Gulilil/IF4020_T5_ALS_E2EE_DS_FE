@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react'
 import socket from '../api/socket'
 import { Message, SendMessagePayload } from '../dto/socket'
+import {
+  adjustText,
+  makeBlocksArrayToString,
+  makeStringToBlocksArray,
+} from '../utils/process'
+import { encryptECB } from '../utils/ecb'
 
 export const useJoinRoom = (selectedChatroom: number | null) => {
   const [messages, setMessages] = useState<{ [key: number]: Message[] }>({})
@@ -69,12 +75,20 @@ export const useSendMessage = () => {
     receiverId: string,
     isSigned: boolean,
     signature?: string,
+    publicKey?: string,
   ) => {
+    const messageAdjusted = adjustText(message)
+    const key = makeStringToBlocksArray(publicKey!, true)
+    const encryptedData = encryptECB(
+      makeStringToBlocksArray(messageAdjusted, false),
+      key[0],
+    )
+    const data = makeBlocksArrayToString(encryptedData)
     const payload: SendMessagePayload = {
       roomId: chatroomId.toString(),
       senderId: user,
       receiverId,
-      message,
+      message: data,
       isSigned,
       signature,
     }

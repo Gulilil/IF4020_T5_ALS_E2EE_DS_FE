@@ -33,6 +33,7 @@ interface ChatContextType {
     receiverId: string,
     isSigned: boolean,
     signature?: string,
+    publicKey?: string,
   ) => void
 }
 
