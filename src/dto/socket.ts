@@ -21,6 +21,7 @@ export interface Message {
   roomChatId: number
   isSigned: boolean
   signature?: string
+  ecegVal : string
 }
 
 export interface Chatroom {

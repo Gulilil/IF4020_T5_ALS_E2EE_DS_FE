@@ -1,7 +1,7 @@
 import { eccBase } from "../type/eccBase";
 import { Point } from "../type/point";
 import { calculateGradient, calculateGradientHomogenous, makeHexToNum, positiveModulo } from "../utils/functions";
-import { generatePrimeNumber } from "../utils/number";
+import { generatePrimeNumber, generateSmallerPrimeNumber } from "../utils/number";
 
 const INFINITY_POINT = new Point(Infinity, Infinity)
 
@@ -29,9 +29,9 @@ export class ECEG {
 
   // The equation will always be y^2 = (x^3 + ax + b) mod p
   constructor() {
-    this.aVal = generatePrimeNumber();
-    this.bVal = generatePrimeNumber();
-    this.pVal = generatePrimeNumber();
+    this.aVal = generateSmallerPrimeNumber();
+    this.bVal = generateSmallerPrimeNumber();
+    this.pVal = generateSmallerPrimeNumber();
     this.points = []
     this.basePoint = new Point(0,0)
     this.calculatePoints();
@@ -43,8 +43,8 @@ export class ECEG {
     // Check the requirements
     let check = 4*Math.pow(this.aVal, 3) + 27*Math.pow(this.bVal, 2)
     while (check == 0){
-      this.aVal = generatePrimeNumber();
-      this.bVal = generatePrimeNumber();
+      this.aVal = generateSmallerPrimeNumber();
+      this.bVal = generateSmallerPrimeNumber();
       check = 4*Math.pow(this.aVal, 3) + 27*Math.pow(this.bVal, 2)
     }
 

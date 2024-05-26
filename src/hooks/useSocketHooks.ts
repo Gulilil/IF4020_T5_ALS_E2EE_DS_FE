@@ -81,6 +81,8 @@ export const useSendMessage = () => {
     publicKey?: string,
   ) => {
     const messageAdjusted = adjustText(message)
+
+    // Setup Encryption for ECEG
     const eceg = new ECEG()
     // Set pre-determined for a, b, p, and basepoint
     eceg.setValue(ECEG_A, ECEG_B, ECEG_P)
@@ -88,8 +90,10 @@ export const useSendMessage = () => {
     eceg.setBasePoint(basePoint)
     const secretPoint = eceg.getRandomPoint()
     const directKey = secretPoint.getPointValue()
+
     const k = eceg.getKValue()
 
+    // Encryption using ECB
     const key = makeStringToBlocksArray(directKey, true)
     const encryptedData = encryptECB(
       makeStringToBlocksArray(messageAdjusted, false),
@@ -97,13 +101,13 @@ export const useSendMessage = () => {
     )
     const data = makeBlocksArrayToString(encryptedData)
 
+    // Closing Encryption
     const publicKeyPoint = new Point(0,0)
     publicKeyPoint.setPointValue(publicKey!)
     const pairPoint = eceg.encryptECEG(k, basePoint, secretPoint, publicKeyPoint)
     const pairPointVal = eceg.getValueFromPairPoint(pairPoint)
     const ecegVal = eceg.makePairPointValueToString(pairPointVal)
 
-    console.log(ecegVal)
 
     const payload: SendMessagePayload = {
       roomId: chatroomId.toString(),

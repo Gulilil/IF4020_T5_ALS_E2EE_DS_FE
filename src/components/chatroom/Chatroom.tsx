@@ -193,7 +193,7 @@ const Chatroom: React.FC = () => {
         messages={messages[selectedChatroom] || []}
         currentUser={currentUser}
         onMessageClick={handleMessageClick}
-        publicKey={receiverPublicKey}
+        privateKey={senderPrivateKey}
       />
       <MessageInput
         message={message}
